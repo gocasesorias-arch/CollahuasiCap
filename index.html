@@ -6,7 +6,6 @@
     <title>Certificaciones Collahuasi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <style>
         :root {
             --color-primary: #275317;
@@ -210,12 +209,10 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Variables globales
+        // URL del archivo JSON en GitHub
+        const jsonUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/tableConvert.com_jt1fa1.json";
         let allData = [];
         let dataLoaded = false;
-
-        // URL del archivo Excel en GitHub (ajusta el nombre si tu archivo cambia)
-        const excelUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/Alerta_08_2025.xlsx";
 
         // Categorías
         const categorias = {
@@ -329,20 +326,16 @@
             }
         }
 
-        // Cargar datos automáticamente desde el Excel en GitHub
-        async function autoLoadExcel() {
+        // Cargar datos automáticamente desde el JSON en GitHub
+        async function autoLoadJSON() {
             try {
-                const response = await fetch(excelUrl);
-                if (!response.ok) throw new Error('No se pudo descargar el archivo Excel');
-                const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array', cellDates: true });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                allData = XLSX.utils.sheet_to_json(firstSheet);
+                const response = await fetch(jsonUrl);
+                if (!response.ok) throw new Error('No se pudo descargar el archivo JSON');
+                allData = await response.json();
                 dataLoaded = true;
                 updateUI();
             } catch (error) {
-                console.error("Error al cargar el Excel:", error);
-                // Si quieres mostrar un mensaje de error en la UI, agrégalo aquí
+                console.error("Error al cargar el JSON:", error);
                 const statusContainer = document.getElementById('statusContainer');
                 statusContainer.innerHTML = `
                     <div class="status-badge" style="background-color:#f8d7da;color:#721c24;">
@@ -354,7 +347,7 @@
         }
 
         // Llama a la función al cargar la página
-        autoLoadExcel();
+        autoLoadJSON();
 
         // Formatear input de RUT
         document.getElementById('rutInput').addEventListener('input', function(e) {
@@ -549,6 +542,7 @@
     </script>
 </body>
 </html>
+
 
 
 
