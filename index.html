@@ -14,57 +14,39 @@
             --color-accent: #8ED973;
             --color-warning: #DE990E;
         }
-
         body {
             background-color: #f5f5f5;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
         .header-collahuasi {
             background-color: var(--color-primary);
             color: white;
             padding: 2rem 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
         .logo-container {
             display: flex;
             gap: 1.5rem;
             margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
-
         .logo-box {
             background: white;
             padding: 0.5rem 1rem;
             border-radius: 8px;
         }
-
         .title-section {
             display: flex;
             align-items: center;
             gap: 1rem;
             flex-wrap: wrap;
         }
-
-        .admin-lock {
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: all 0.3s;
-        }
-
-        .admin-lock:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
         .search-box {
             background: white;
             padding: 1.5rem;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
         .cert-card {
             background: white;
             border-radius: 8px;
@@ -74,30 +56,24 @@
             transition: all 0.3s;
             margin-bottom: 1rem;
         }
-
         .cert-card:hover {
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             transform: translateY(-2px);
         }
-
         .cert-card.vigente {
             border-left-color: var(--color-accent);
         }
-
         .cert-card.vencido {
             border-left-color: var(--color-warning);
         }
-
         .badge-vigente {
             background-color: #d4edda;
             color: #155724;
         }
-
         .badge-vencido {
             background-color: #fff3cd;
             color: #856404;
         }
-
         .status-badge {
             background-color: #d4edda;
             color: #155724;
@@ -107,20 +83,17 @@
             align-items: center;
             gap: 0.5rem;
         }
-
         .section-header {
             display: flex;
             align-items: center;
             gap: 1rem;
             margin: 2rem 0 1rem;
         }
-
         .section-line {
             width: 4px;
             height: 32px;
             border-radius: 2px;
         }
-
         .btn-download {
             background-color: var(--color-secondary);
             color: white;
@@ -131,17 +104,14 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-
         .btn-download:hover {
             opacity: 0.9;
         }
-
         .modal-step {
             display: flex;
             gap: 1rem;
             margin-bottom: 1rem;
         }
-
         .step-number {
             width: 32px;
             height: 32px;
@@ -154,7 +124,6 @@
             font-weight: bold;
             flex-shrink: 0;
         }
-
         .loading-spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid var(--color-secondary);
@@ -164,25 +133,18 @@
             animation: spin 1s linear infinite;
             margin: 2rem auto;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
         .empty-state {
             text-align: center;
             padding: 3rem 1rem;
         }
-
         .empty-state i {
             font-size: 4rem;
             margin-bottom: 1rem;
             opacity: 0.5;
-        }
-
-        #fileInput {
-            display: none;
         }
     </style>
 </head>
@@ -200,7 +162,6 @@
                     <div style="color: #5DBDB6; font-size: 0.7rem;">somos CChC</div>
                 </div>
             </div>
-
             <div class="title-section">
                 <i class="fas fa-hard-hat" style="font-size: 3rem; color: var(--color-warning);"></i>
                 <div style="flex: 1;">
@@ -209,7 +170,6 @@
                 </div>
                 <div id="statusContainer"></div>
             </div>
-
             <div id="searchContainer" class="search-box mt-4" style="display: none;">
                 <div class="row g-2">
                     <div class="col-md-10">
@@ -223,83 +183,26 @@
                     </div>
                 </div>
             </div>
-
             <div id="noDataMessage" class="search-box mt-4 text-center">
                 <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--color-warning);"></i>
                 <p class="text-dark mt-3 mb-1">Sistema sin datos cargados</p>
-                <p class="text-muted small">Haga clic en el ícono de candado para cargar los datos</p>
+                <p class="text-muted small">Espere unos segundos mientras se cargan los datos automáticamente</p>
             </div>
         </div>
     </div>
-
     <!-- Results Container -->
     <div class="container my-4">
         <div id="loadingContainer" style="display: none;">
             <div class="loading-spinner"></div>
             <p class="text-center text-muted">Buscando certificaciones...</p>
         </div>
-
         <div id="resultsContainer"></div>
-
         <div id="emptyResults" style="display: none;" class="empty-state">
             <i class="fas fa-search text-muted"></i>
             <h3 class="text-muted">Busque certificaciones por RUT</h3>
             <p class="text-muted">Ingrese el RUT del trabajador para ver sus certificaciones</p>
         </div>
     </div>
-
-    <!-- Password Modal -->
-    <div class="modal fade" id="passwordModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" style="background-color: var(--color-primary); color: white;">
-                    <h5 class="modal-title">Acceso Administrativo</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-muted">Ingrese la contraseña de administrador para cargar datos</p>
-                    <input type="password" id="passwordInput" class="form-control" placeholder="Contraseña">
-                    <div id="passwordError" class="text-danger mt-2" style="display: none;">Contraseña incorrecta</div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn" style="background-color: var(--color-secondary); color: white;" onclick="checkPassword()">Ingresar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Upload Modal -->
-    <div class="modal fade" id="uploadModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header" style="background-color: var(--color-primary); color: white;">
-                    <h5 class="modal-title">Cargar Archivo de Datos</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Acceso Administrativo</strong><br>
-                        Esta acción es solo para administradores. Cargue el archivo de datos actualizado.
-                    </div>
-                    <input type="file" id="fileInput" accept=".xlsx,.xls">
-                    <label for="fileInput" class="btn w-100" style="background-color: var(--color-secondary); color: white;">
-                        <i class="fas fa-upload"></i> Seleccionar Archivo Excel
-                    </label>
-                    <div class="mt-3 p-3" style="background-color: #f8f9fa; border-radius: 6px;">
-                        <p class="small mb-2"><strong>Instrucciones:</strong></p>
-                        <ol class="small mb-0">
-                            <li>Seleccione el archivo <strong>Alerta_08_2025.xlsx</strong></li>
-                            <li>El sistema procesará los datos automáticamente</li>
-                            <li>Una vez cargado, estará disponible para todos los supervisores</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Guide Modal -->
     <div class="modal fade" id="guideModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -317,12 +220,14 @@
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Variables globales
         let allData = [];
         let dataLoaded = false;
+
+        // URL del archivo Excel en GitHub (ajusta el nombre si tu archivo cambia)
+        const excelUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/Alerta_08_2025.xlsx";
 
         // Categorías
         const categorias = {
@@ -382,16 +287,13 @@
         function formatRut(value) {
             const cleaned = value.replace(/[^0-9kK]/g, '');
             if (cleaned.length <= 1) return cleaned;
-            
             const dv = cleaned.slice(-1);
             const numbers = cleaned.slice(0, -1);
-            
             let formatted = '';
             for (let i = numbers.length - 1, j = 0; i >= 0; i--, j++) {
                 if (j > 0 && j % 3 === 0) formatted = '.' + formatted;
                 formatted = numbers[i] + formatted;
             }
-            
             return formatted + '-' + dv;
         }
 
@@ -399,7 +301,6 @@
         function categorizarCertificado(nombre) {
             if (!nombre) return 'otros';
             const nombreUpper = nombre.toUpperCase();
-            
             if (categorias.equiposMoviles.some(eq => nombreUpper.includes(eq.toUpperCase()))) {
                 return 'equiposMoviles';
             }
@@ -429,8 +330,9 @@
                 emptyResults.style.display = 'block';
             } else {
                 statusContainer.innerHTML = `
-                    <div class="admin-lock" onclick="showPasswordModal()">
-                        <i class="fas fa-lock" style="font-size: 2rem;"></i>
+                    <div class="status-badge" style="background-color:#fff3cd;color:#856404;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span><strong>Cargando datos...</strong></span>
                     </div>
                 `;
                 searchContainer.style.display = 'none';
@@ -439,55 +341,32 @@
             }
         }
 
-        // Mostrar modal de contraseña
-        function showPasswordModal() {
-            const modal = new bootstrap.Modal(document.getElementById('passwordModal'));
-            modal.show();
-        }
-
-        // Verificar contraseña
-        function checkPassword() {
-            const password = document.getElementById('passwordInput').value;
-            const errorDiv = document.getElementById('passwordError');
-
-            if (password === 'clikma0624') {
-                bootstrap.Modal.getInstance(document.getElementById('passwordModal')).hide();
-                document.getElementById('passwordInput').value = '';
-                errorDiv.style.display = 'none';
-                
-                const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
-                uploadModal.show();
-            } else {
-                errorDiv.style.display = 'block';
-                document.getElementById('passwordInput').value = '';
+        // Cargar datos automáticamente desde el Excel en GitHub
+        async function autoLoadExcel() {
+            try {
+                const response = await fetch(excelUrl);
+                if (!response.ok) throw new Error('No se pudo descargar el archivo Excel');
+                const arrayBuffer = await response.arrayBuffer();
+                const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array', cellDates: true });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                allData = XLSX.utils.sheet_to_json(firstSheet);
+                dataLoaded = true;
+                updateUI();
+            } catch (error) {
+                console.error("Error al cargar el Excel:", error);
+                // Si quieres mostrar un mensaje de error en la UI, agrégalo aquí
+                const statusContainer = document.getElementById('statusContainer');
+                statusContainer.innerHTML = `
+                    <div class="status-badge" style="background-color:#f8d7da;color:#721c24;">
+                        <i class="fas fa-times-circle"></i>
+                        <span><strong>Error cargando datos</strong></span>
+                    </div>
+                `;
             }
         }
 
-        // Manejar carga de archivo
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    allData = XLSX.utils.sheet_to_json(firstSheet);
-                    
-                    dataLoaded = true;
-                    bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
-                    updateUI();
-                    
-                    alert(`✓ Datos cargados exitosamente: ${allData.length} registros`);
-                } catch (error) {
-                    alert('Error al procesar el archivo. Verifique que sea el archivo correcto.');
-                    console.error(error);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        });
+        // Llama a la función al cargar la página
+        autoLoadExcel();
 
         // Formatear input de RUT
         document.getElementById('rutInput').addEventListener('input', function(e) {
@@ -518,7 +397,6 @@
 
             setTimeout(() => {
                 const cleanRut = rutInput.replace(/\./g, '').replace(/-/g, '').toUpperCase().trim();
-                
                 const results = allData.filter(item => {
                     if (!item.RUT) return false;
                     const itemRut = String(item.RUT).replace(/\./g, '').replace(/-/g, '').toUpperCase().trim();
@@ -657,10 +535,8 @@
         function showGuide(type) {
             const guide = guides[type];
             const modal = new bootstrap.Modal(document.getElementById('guideModal'));
-            
             document.getElementById('guideModalTitle').textContent = guide.title;
             document.getElementById('guideLink').href = guide.link;
-            
             let stepsHtml = '';
             guide.steps.forEach((step, index) => {
                 stepsHtml += `
@@ -670,20 +546,19 @@
                     </div>
                 `;
             });
-            
             stepsHtml += `
                 <div class="alert alert-info mt-3">
                     <strong>Nota:</strong> Si tiene problemas para descargar su certificado, 
                     contacte al departamento de capacitación.
                 </div>
             `;
-            
             document.getElementById('guideModalBody').innerHTML = stepsHtml;
             modal.show();
         }
 
-        // Inicializar
+        // Inicializar UI
         updateUI();
     </script>
 </body>
 </html>
+
