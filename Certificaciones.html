@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificaciones Collahuasi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --color-primary: #275317;
+            --color-secondary: #3B7D23;
+            --color-accent: #8ED973;
+            --color-warning: #DE990E;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header-collahuasi {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .logo-box {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .title-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .admin-lock {
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .admin-lock:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .search-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .cert-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .cert-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .cert-card.vigente {
+            border-left-color: var(--color-accent);
+        }
+
+        .cert-card.vencido {
+            border-left-color: var(--color-warning);
+        }
+
+        .badge-vigente {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .badge-vencido {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0 1rem;
+        }
+
+        .section-line {
+            width: 4px;
+            height: 32px;
+            border-radius: 2px;
+        }
+
+        .btn-download {
+            background-color: var(--color-secondary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-download:hover {
+            opacity: 0.9;
+        }
+
+        .modal-step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background-color: var(--color-secondary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--color-secondary);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header-collahuasi">
+        <div class="container">
+            <div class="logo-container">
+                <div class="logo-box">
+                    <strong style="color: var(--color-primary); font-size: 1.5rem;">COLLAHUASI</strong>
+                    <div style="color: var(--color-primary); font-size: 0.8rem;">MUCHO MÁS QUE COBRE</div>
+                </div>
+                <div class="logo-box">
+                    <strong style="color: #5DBDB6; font-size: 1.3rem;">oTiC</strong>
+                    <div style="color: #5DBDB6; font-size: 0.7rem;">somos CChC</div>
+                </div>
+            </div>
+
+            <div class="title-section">
+                <i class="fas fa-hard-hat" style="font-size: 3rem; color: var(--color-warning);"></i>
+                <div style="flex: 1;">
+                    <h1 class="mb-0">Certificaciones Collahuasi</h1>
+                    <p class="mb-0 opacity-75" style="font-size: 0.9rem;">Sistema de Consulta de Certificaciones</p>
+                </div>
+                <div id="statusContainer"></div>
+            </div>
+
+            <div id="searchContainer" class="search-box mt-4" style="display: none;">
+                <div class="row g-2">
+                    <div class="col-md-10">
+                        <input type="text" id="rutInput" class="form-control form-control-lg" 
+                               placeholder="Ingrese RUT (Ej: 12.345.678-9)" maxlength="12">
+                    </div>
+                    <div class="col-md-2">
+                        <button id="btnSearch" class="btn btn-lg w-100" style="background-color: var(--color-secondary); color: white;">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="noDataMessage" class="search-box mt-4 text-center">
+                <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--color-warning);"></i>
+                <p class="text-dark mt-3 mb-1">Sistema sin datos cargados</p>
+                <p class="text-muted small">Haga clic en el ícono de candado para cargar los datos</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Container -->
+    <div class="container my-4">
+        <div id="loadingContainer" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p class="text-center text-muted">Buscando certificaciones...</p>
+        </div>
+
+        <div id="resultsContainer"></div>
+
+        <div id="emptyResults" style="display: none;" class="empty-state">
+            <i class="fas fa-search text-muted"></i>
+            <h3 class="text-muted">Busque certificaciones por RUT</h3>
+            <p class="text-muted">Ingrese el RUT del trabajador para ver sus certificaciones</p>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div class="modal fade" id="passwordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--color-primary); color: white;">
+                    <h5 class="modal-title">Acceso Administrativo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted">Ingrese la contraseña de administrador para cargar datos</p>
+                    <input type="password" id="passwordInput" class="form-control" placeholder="Contraseña">
+                    <div id="passwordError" class="text-danger mt-2" style="display: none;">Contraseña incorrecta</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn" style="background-color: var(--color-secondary); color: white;" onclick="checkPassword()">Ingresar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="modal fade" id="uploadModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--color-primary); color: white;">
+                    <h5 class="modal-title">Cargar Archivo de Datos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Acceso Administrativo</strong><br>
+                        Esta acción es solo para administradores. Cargue el archivo de datos actualizado.
+                    </div>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls">
+                    <label for="fileInput" class="btn w-100" style="background-color: var(--color-secondary); color: white;">
+                        <i class="fas fa-upload"></i> Seleccionar Archivo Excel
+                    </label>
+                    <div class="mt-3 p-3" style="background-color: #f8f9fa; border-radius: 6px;">
+                        <p class="small mb-2"><strong>Instrucciones:</strong></p>
+                        <ol class="small mb-0">
+                            <li>Seleccione el archivo <strong>Alerta_08_2025.xlsx</strong></li>
+                            <li>El sistema procesará los datos automáticamente</li>
+                            <li>Una vez cargado, estará disponible para todos los supervisores</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guide Modal -->
+    <div class="modal fade" id="guideModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--color-primary); color: white;">
+                    <h5 class="modal-title" id="guideModalTitle"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="guideModalBody"></div>
+                <div class="modal-footer">
+                    <a id="guideLink" href="#" target="_blank" class="btn" style="background-color: var(--color-secondary); color: white;">
+                        <i class="fas fa-external-link-alt"></i> Ir al Portal de Descarga
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        let allData = [];
+        let dataLoaded = false;
+
+        // Categorías
+        const categorias = {
+            equiposMoviles: [
+                "Grúas móviles tipo AT", "Operador Rigger", "OPERAR CAMIÓN PLUMA",
+                "OPERAR GRÚA ALZAHOMBRE", "OPERAR GRÚA HORQUILLA", "OPERAR GRÚA PEDESTAL",
+                "OPERAR GRÚA PLUMA", "OPERAR PUENTE GRÚA", "OPERAR RETROEXCAVADORA"
+            ],
+            epf: [
+                "AISLAMIENTO, BLOQUEO Y PRUEBAS DE ENERGÍA EPF#5",
+                "PROTECCIÓN CONTRA CAÍDAS EPF#6",
+                "TÉCNICAS Y MANIOBRAS DE IZAJE Y LEVANTE (RIGGER)"
+            ]
+        };
+
+        // Guías de descarga
+        const guides = {
+            equiposMoviles: {
+                title: "Guía de Descarga - Equipos Móviles",
+                link: "https://clientes.ceim.cl/index.asp",
+                steps: [
+                    "Ingrese al portal CEIM haciendo clic en el botón de abajo",
+                    "Inicie sesión con sus credenciales",
+                    "Navegue a la sección 'Mis Certificaciones'",
+                    "Busque su certificación de equipos móviles",
+                    "Haga clic en 'Descargar' para obtener el PDF",
+                    "El certificado se descargará automáticamente"
+                ]
+            },
+            epf: {
+                title: "Guía de Descarga - Estándares de Prevención de Fatalidades",
+                link: "https://certificate.fsmspa.com/",
+                steps: [
+                    "Acceda al portal FSM haciendo clic en el botón de abajo",
+                    "Ingrese su RUT y contraseña",
+                    "Seleccione el certificado EPF que desea descargar",
+                    "Verifique que el certificado esté vigente",
+                    "Presione 'Descargar Certificado'",
+                    "Guarde el archivo PDF en su computador"
+                ]
+            },
+            otros: {
+                title: "Guía de Descarga - Otras Certificaciones",
+                link: "https://clientes.ceim.cl/index.asp",
+                steps: [
+                    "Ingrese al portal CEIM haciendo clic en el botón de abajo",
+                    "Inicie sesión con sus credenciales",
+                    "Vaya a 'Mis Certificaciones'",
+                    "Busque el curso específico",
+                    "Verifique la fecha de vigencia",
+                    "Seleccione 'Descargar' para obtener el PDF"
+                ]
+            }
+        };
+
+        // Formatear RUT
+        function formatRut(value) {
+            const cleaned = value.replace(/[^0-9kK]/g, '');
+            if (cleaned.length <= 1) return cleaned;
+            
+            const dv = cleaned.slice(-1);
+            const numbers = cleaned.slice(0, -1);
+            
+            let formatted = '';
+            for (let i = numbers.length - 1, j = 0; i >= 0; i--, j++) {
+                if (j > 0 && j % 3 === 0) formatted = '.' + formatted;
+                formatted = numbers[i] + formatted;
+            }
+            
+            return formatted + '-' + dv;
+        }
+
+        // Categorizar certificado
+        function categorizarCertificado(nombre) {
+            if (!nombre) return 'otros';
+            const nombreUpper = nombre.toUpperCase();
+            
+            if (categorias.equiposMoviles.some(eq => nombreUpper.includes(eq.toUpperCase()))) {
+                return 'equiposMoviles';
+            }
+            if (categorias.epf.some(epf => nombreUpper.includes(epf.toUpperCase()))) {
+                return 'epf';
+            }
+            return 'otros';
+        }
+
+        // Actualizar UI según estado
+        function updateUI() {
+            const statusContainer = document.getElementById('statusContainer');
+            const searchContainer = document.getElementById('searchContainer');
+            const noDataMessage = document.getElementById('noDataMessage');
+            const emptyResults = document.getElementById('emptyResults');
+
+            if (dataLoaded && allData.length > 0) {
+                statusContainer.innerHTML = `
+                    <div class="status-badge">
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Sistema Activo</strong></span>
+                    </div>
+                    <div class="text-white-50 small text-end mt-1">${allData.length} registros</div>
+                `;
+                searchContainer.style.display = 'block';
+                noDataMessage.style.display = 'none';
+                emptyResults.style.display = 'block';
+            } else {
+                statusContainer.innerHTML = `
+                    <div class="admin-lock" onclick="showPasswordModal()">
+                        <i class="fas fa-lock" style="font-size: 2rem;"></i>
+                    </div>
+                `;
+                searchContainer.style.display = 'none';
+                noDataMessage.style.display = 'block';
+                emptyResults.style.display = 'none';
+            }
+        }
+
+        // Mostrar modal de contraseña
+        function showPasswordModal() {
+            const modal = new bootstrap.Modal(document.getElementById('passwordModal'));
+            modal.show();
+        }
+
+        // Verificar contraseña
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('passwordError');
+
+            if (password === 'clikma0624') {
+                bootstrap.Modal.getInstance(document.getElementById('passwordModal')).hide();
+                document.getElementById('passwordInput').value = '';
+                errorDiv.style.display = 'none';
+                
+                const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
+                uploadModal.show();
+            } else {
+                errorDiv.style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        // Manejar carga de archivo
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    allData = XLSX.utils.sheet_to_json(firstSheet);
+                    
+                    dataLoaded = true;
+                    bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
+                    updateUI();
+                    
+                    alert(`✓ Datos cargados exitosamente: ${allData.length} registros`);
+                } catch (error) {
+                    alert('Error al procesar el archivo. Verifique que sea el archivo correcto.');
+                    console.error(error);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Formatear input de RUT
+        document.getElementById('rutInput').addEventListener('input', function(e) {
+            e.target.value = formatRut(e.target.value);
+        });
+
+        // Buscar al presionar Enter
+        document.getElementById('rutInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchCertifications();
+            }
+        });
+
+        // Buscar certificaciones
+        document.getElementById('btnSearch').addEventListener('click', searchCertifications);
+
+        function searchCertifications() {
+            const rutInput = document.getElementById('rutInput').value;
+            const loadingContainer = document.getElementById('loadingContainer');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const emptyResults = document.getElementById('emptyResults');
+
+            if (rutInput.length < 9) return;
+
+            loadingContainer.style.display = 'block';
+            resultsContainer.innerHTML = '';
+            emptyResults.style.display = 'none';
+
+            setTimeout(() => {
+                const cleanRut = rutInput.replace(/\./g, '').replace(/-/g, '').toUpperCase().trim();
+                
+                const results = allData.filter(item => {
+                    if (!item.RUT) return false;
+                    const itemRut = String(item.RUT).replace(/\./g, '').replace(/-/g, '').toUpperCase().trim();
+                    return itemRut === cleanRut;
+                });
+
+                loadingContainer.style.display = 'none';
+
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-times-circle text-muted"></i>
+                            <h3 class="text-muted">No se encontraron certificaciones</h3>
+                            <p class="text-muted">Verifique que el RUT ingresado sea correcto</p>
+                            <p class="text-muted small">RUT buscado: ${rutInput}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const categorized = { equiposMoviles: [], epf: [], otros: [] };
+
+                results.forEach(cert => {
+                    const categoria = categorizarCertificado(cert.Certificado);
+                    const fechaTermino = new Date(cert['Fecha Termino Vigencia']);
+                    const vigente = fechaTermino >= new Date();
+
+                    categorized[categoria].push({
+                        nombre: cert.Certificado,
+                        fechaInicio: new Date(cert['Fecha Inicio Vigencia']).toLocaleDateString('es-CL'),
+                        fechaTermino: fechaTermino.toLocaleDateString('es-CL'),
+                        vigente: vigente,
+                        trabajador: cert.Trabajador,
+                        posicion: cert.Posición || cert.Posicion,
+                        otec: cert.Otec
+                    });
+                });
+
+                displayResults(categorized);
+            }, 500);
+        }
+
+        function displayResults(categorized) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            let html = '';
+
+            // Datos del trabajador
+            const firstCert = categorized.equiposMoviles[0] || categorized.epf[0] || categorized.otros[0];
+            if (firstCert) {
+                html += `
+                    <div class="cert-card mb-4">
+                        <h4 style="color: var(--color-primary);">Datos del Trabajador</h4>
+                        <p class="mb-1"><strong>Nombre:</strong> ${firstCert.trabajador}</p>
+                        <p class="mb-0"><strong>Posición:</strong> ${firstCert.posicion}</p>
+                    </div>
+                `;
+            }
+
+            // Equipos Móviles
+            if (categorized.equiposMoviles.length > 0) {
+                html += `
+                    <div class="section-header">
+                        <div class="section-line" style="background-color: var(--color-secondary);"></div>
+                        <h2 style="color: var(--color-primary);">Equipos Móviles</h2>
+                        <span class="badge" style="background-color: var(--color-accent); color: var(--color-primary);">
+                            ${categorized.equiposMoviles.length}
+                        </span>
+                    </div>
+                    <div class="row">
+                        ${categorized.equiposMoviles.map(cert => createCertCard(cert, 'equiposMoviles')).join('')}
+                    </div>
+                `;
+            }
+
+            // EPF
+            if (categorized.epf.length > 0) {
+                html += `
+                    <div class="section-header">
+                        <div class="section-line" style="background-color: var(--color-warning);"></div>
+                        <h2 style="color: var(--color-primary);">Estándares de Prevención de Fatalidades (EPF)</h2>
+                        <span class="badge" style="background-color: rgba(222, 153, 14, 0.25); color: var(--color-warning);">
+                            ${categorized.epf.length}
+                        </span>
+                    </div>
+                    <div class="row">
+                        ${categorized.epf.map(cert => createCertCard(cert, 'epf')).join('')}
+                    </div>
+                `;
+            }
+
+            // Otros
+            if (categorized.otros.length > 0) {
+                html += `
+                    <div class="section-header">
+                        <div class="section-line" style="background-color: var(--color-secondary);"></div>
+                        <h2 style="color: var(--color-primary);">Otras Certificaciones</h2>
+                        <span class="badge" style="background-color: var(--color-accent); color: var(--color-primary);">
+                            ${categorized.otros.length}
+                        </span>
+                    </div>
+                    <div class="row">
+                        ${categorized.otros.map(cert => createCertCard(cert, 'otros')).join('')}
+                    </div>
+                `;
+            }
+
+            resultsContainer.innerHTML = html;
+        }
+
+        function createCertCard(cert, categoria) {
+            return `
+                <div class="col-md-4">
+                    <div class="cert-card ${cert.vigente ? 'vigente' : 'vencido'}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0 flex-grow-1">${cert.nombre}</h6>
+                            <i class="fas fa-${cert.vigente ? 'check-circle text-success' : 'exclamation-circle text-warning'}"></i>
+                        </div>
+                        <div class="small text-muted mb-2">
+                            <p class="mb-1"><strong>Inicio:</strong> ${cert.fechaInicio}</p>
+                            <p class="mb-1"><strong>Vencimiento:</strong> ${cert.fechaTermino}</p>
+                            <p class="mb-0"><strong>OTEC:</strong> ${cert.otec}</p>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge ${cert.vigente ? 'badge-vigente' : 'badge-vencido'}">
+                                ${cert.vigente ? 'VIGENTE' : 'VENCIDO'}
+                            </span>
+                            <button class="btn-download" onclick="showGuide('${categoria}')">
+                                <i class="fas fa-download"></i> Descargar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showGuide(type) {
+            const guide = guides[type];
+            const modal = new bootstrap.Modal(document.getElementById('guideModal'));
+            
+            document.getElementById('guideModalTitle').textContent = guide.title;
+            document.getElementById('guideLink').href = guide.link;
+            
+            let stepsHtml = '';
+            guide.steps.forEach((step, index) => {
+                stepsHtml += `
+                    <div class="modal-step">
+                        <div class="step-number">${index + 1}</div>
+                        <p class="mb-0">${step}</p>
+                    </div>
+                `;
+            });
+            
+            stepsHtml += `
+                <div class="alert alert-info mt-3">
+                    <strong>Nota:</strong> Si tiene problemas para descargar su certificado, 
+                    contacte al departamento de capacitación.
+                </div>
+            `;
+            
+            document.getElementById('guideModalBody').innerHTML = stepsHtml;
+            modal.show();
+        }
+
+        // Inicializar
+        updateUI();
+    </script>
+</body>
+</html>
