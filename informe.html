@@ -18,8 +18,8 @@
   <!-- Babel para JSX en el navegador -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Recharts -->
-  <script src="https://unpkg.com/recharts@2.5.0/dist/Recharts.js"></script>
+  <!-- Recharts (UMD correcto; expone window.Recharts) -->
+  <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
 
   <style>
     .spin { animation: spin 1s linear infinite }
@@ -29,14 +29,12 @@
 <body class="bg-gray-50">
   <div id="root"></div>
 
-  <!-- IMPORTANTE: usar presets env,react -->
   <script type="text/babel" data-presets="env,react">
     const {useState, useMemo, useEffect} = React;
     const {
       BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
     } = Recharts;
 
-    /* ========= Config ========= */
     const DATA_URL = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/tableConvert.com_jt1fa1.json";
 
     const CERTS_WHITELIST = new Set([
@@ -102,7 +100,6 @@
       const [gerenciaFiltro, setGerenciaFiltro] = useState('todas');
       const [supFiltro, setSupFiltro] = useState('todas');
 
-      // Auto-carga
       useEffect(() => {
         (async () => {
           try {
@@ -116,10 +113,8 @@
         })();
       }, []);
 
-      // Lucide
-      useEffect(()=>{ if (window.lucide) lucide.createIcons({attrs:{'stroke-width':2}}); });
+      useEffect(()=>{ if (window.lucide) lucide.createIcons({attrs:{'stroke-width':2}}); }, []);
 
-      // Canonización
       const canon = useMemo(() => (raw||[]).map(r => ({
         certificado: normU(getAny(r, ['Certificado','certificado','Nombre','nombre'])),
         estado:      normL(getAny(r, ['estado','Estado'])),
@@ -128,13 +123,11 @@
         sup:         norm(getAny(r, ['Superintendencia','superintendencia','Super','super'])),
       })), [raw]);
 
-      // Universo válido
       const universe = useMemo(() => canon.filter(r =>
         CERTS_WHITELIST.has(r.certificado) &&
         (r.estado === 'vigente' || r.estado === 'vencido')
       ), [canon]);
 
-      // Filtros dinámicos
       const vps  = useMemo(() => Array.from(new Set(universe.map(r=>r.vp).filter(Boolean))), [universe]);
       const gers = useMemo(() => Array.from(new Set(universe.map(r=>r.ger).filter(Boolean))), [universe]);
       const sups = useMemo(() => Array.from(new Set(universe.map(r=>r.sup).filter(Boolean))), [universe]);
@@ -145,7 +138,6 @@
         (supFiltro==='todas' || r.sup===supFiltro)
       ), [universe, vpFiltro, gerenciaFiltro, supFiltro]);
 
-      // KPIs
       const kpi = useMemo(() => {
         const total = filtered.length;
         const vig = filtered.filter(r=>r.estado==='vigente').length;
@@ -154,7 +146,6 @@
         return { total, vig, ven, pctVig:+(vig*100/base).toFixed(1), pctVen:+(ven*100/base).toFixed(1) };
       }, [filtered]);
 
-      // Data de gráficos
       const dataVpStack = useMemo(() => {
         const base = {};
         for (const r of filtered) {
@@ -166,25 +157,25 @@
         return Object.values(base);
       }, [filtered]);
 
-      const dataTopVencidosVP = useMemo(() => 
+      const dataTopVencidosVP = useMemo(() =>
         groupCount(filtered, r=>r.vp, r=>r.estado==='vencido')
           .sort((a,b)=>b.value-a.value)
           .slice(0,10)
       , [filtered]);
 
-      const dataPctVencidosSup = useMemo(() => 
+      const dataPctVencidosSup = useMemo(() =>
         groupPct(filtered, r=>r.sup, r=>r.estado==='vencido').sort((a,b)=>b.pct-a.pct)
       , [filtered]);
 
-      const dataPctVigentesSup = useMemo(() => 
+      const dataPctVigentesSup = useMemo(() =>
         groupPct(filtered, r=>r.sup, r=>r.estado==='vigente').sort((a,b)=>b.pct-a.pct)
       , [filtered]);
 
-      const dataPctVencidosGer = useMemo(() => 
+      const dataPctVencidosGer = useMemo(() =>
         groupPct(filtered, r=>r.ger, r=>r.estado==='vencido').sort((a,b)=>b.pct-a.pct)
       , [filtered]);
 
-      const dataPctVigentesGer = useMemo(() => 
+      const dataPctVigentesGer = useMemo(() =>
         groupPct(filtered, r=>r.ger, r=>r.estado==='vigente').sort((a,b)=>b.pct-a.pct)
       , [filtered]);
 
@@ -207,13 +198,11 @@
 
       return (
         <div className="max-w-7xl mx-auto p-6">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Informe de Certificaciones</h1>
             <p className="text-gray-600">Datos cargados automáticamente desde GitHub Raw</p>
           </div>
 
-          {/* KPIs */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
@@ -258,7 +247,6 @@
             </div>
           </div>
 
-          {/* Filtros */}
           <div className="bg-white rounded-lg shadow p-6 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
               <div>
@@ -308,9 +296,7 @@
             </div>
           </div>
 
-          {/* Gráficos */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Vigentes vs Vencidos por Vicepresidencia</h3>
               <ResponsiveContainer width="100%" height={320}>
@@ -390,7 +376,6 @@
                 </BarChart>
               </ResponsiveContainer>
             </div>
-
           </div>
         </div>
       );
@@ -400,4 +385,3 @@
   </script>
 </body>
 </html>
-
