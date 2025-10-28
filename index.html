@@ -76,9 +76,7 @@
       align-items: center;
       gap: 0.5rem;
     }
-    .section-header {
-      display: flex; align-items: center; gap: 1rem; margin: 2rem 0 1rem;
-    }
+    .section-header { display: flex; align-items: center; gap: 1rem; margin: 2rem 0 1rem; }
     .section-line { width: 4px; height: 32px; border-radius: 2px; }
     .btn-download {
       background-color: var(--color-secondary);
@@ -136,15 +134,15 @@
         <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--color-warning);"></i>
         <p class="text-dark mt-3 mb-1">Sistema sin datos cargados</p>
         <p class="text-muted small">Espere unos segundos mientras se cargan los datos automáticamente</p>
-          <a href="informe.html" class="position-absolute top-0 end-0 m-3" title="Ver gráficos">
-      <i class="fas fa-chart-line fa-2x text-white"></i>
-    </a>
-  </div>
-  <a href="informe.html" class="position-absolute top-0 end-0 m-3" title="Ver gráficos">
-    <i class="fas fa-chart-line fa-2x text-white"></i>
-  </a>
-</div>
-</header>
+        <a href="informe.html" class="position-absolute top-0 end-0 m-3" title="Ver gráficos">
+          <i class="fas fa-chart-line fa-2x text-white"></i>
+        </a>
+      </div>
+      <a href="informe.html" class="position-absolute top-0 end-0 m-3" title="Ver gráficos">
+        <i class="fas fa-chart-line fa-2x text-white"></i>
+      </a>
+    </div>
+  </header>
 
   <!-- Main -->
   <main class="container my-4" role="main">
@@ -292,7 +290,6 @@
 
     function parseDate(value) {
       if (!value) return null;
-      // Try several common formats; fallback to native Date
       const cand = [
         'DD/MM/YYYY', 'D/M/YYYY', 'YYYY-MM-DD', 'DD-MM-YYYY',
         'D-MM-YYYY', 'DD.MM.YYYY', 'YYYY/MM/DD'
@@ -348,7 +345,8 @@
         <div class="text-white-50 small text-end mt-1">${total} registros</div>`;
       searchContainer.style.display = 'block';
       noDataMessage.style.display = 'none';
-      emptyResults.style.display = 'block';
+      // quitar placeholder
+      emptyResults.style.display = 'none';
     }
 
     function setStatusError() {
@@ -416,8 +414,11 @@
     }
 
     function buildKpis(list) {
-      if (!Array.isArray(list) || !list.length) { kpis.innerHTML = '';
-          document.getElementById('exportContainer').style.display = 'none'; return; }
+      if (!Array.isArray(list) || !list.length) {
+        kpis.innerHTML = '';
+        document.getElementById('exportContainer').style.display = 'none';
+        return;
+      }
       const totals = { vig: 0, ven: 0 };
       for (const c of list) { totals[c.vigente ? 'vig' : 'ven']++; }
       kpis.innerHTML = `
@@ -438,11 +439,15 @@
             <p class="text-muted">Revise el formato y el dígito verificador.</p>
             <p class="text-muted small">Ejemplo: 12.345.678-9</p>
           </div>`;
+        // ocultar PDF y KPIs
+        document.getElementById('exportContainer').style.display = 'none';
+        kpis.innerHTML = '';
         return;
       }
 
       loadingContainer.style.display = 'block';
       resultsContainer.innerHTML = '';
+      // no mostramos placeholder
       emptyResults.style.display = 'none';
 
       setTimeout(() => {
@@ -463,6 +468,8 @@
               <p class="text-muted small">RUT buscado: ${formatRut(cleanRut)}</p>
             </div>`;
           kpis.innerHTML = '';
+          // ocultar PDF si no hay datos
+          document.getElementById('exportContainer').style.display = 'none';
           return;
         }
 
@@ -675,10 +682,13 @@
       if (dataLoaded && allData.length > 0) {
         setStatusReady(allData.length);
       }
+      // forzar oculto el botón PDF al inicio
+      document.getElementById('exportContainer').style.display = 'none';
     })();
   </script>
 </body>
 </html>
+
 
 
 
