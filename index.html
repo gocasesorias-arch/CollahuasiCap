@@ -3,483 +3,684 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Certificaciones Collahuasi — Consulta por RUT</title>
-
-  <!-- Estilos -->
+  <title>Certificaciones Collahuasi — v2</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-
-  <!-- Utilidades -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/es.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
-
-  <!-- PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-
   <style>
-    :root{
-      --c1:#275317; --c2:#3b7d23; --c3:#8ed973; --cWarn:#de990e;
+    :root {
+      --color-primary: #275317;
+      --color-secondary: #3b7d23;
+      --color-accent: #8ed973;
+      --color-warning: #de990e;
     }
-    body{ background:#f6f7f9; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial; }
-    .header{ background:var(--c1); color:#fff; padding:2rem 0 1.25rem; }
-    .logo{ display:block; margin:0 auto 1rem; max-width:320px; width:100%; border-radius:20px; }
-    .pill{ background:#eaf1ea; color:#225a16; border-radius:999px; padding:.45rem .8rem; display:inline-flex; gap:.5rem; align-items:center; font-weight:600; }
-    .search-box{ background:#fff; border:1px solid #e8e8e8; border-radius:14px; padding:1.25rem; box-shadow:0 2px 8px rgba(0,0,0,.06); }
-    .kpi{ color:#fff; border-radius:999px; padding:.35rem .75rem; font-weight:700; font-size:.95rem; }
-    .kpi.v{ background:#1f8a46; } .kpi.x{ background:#c98208; }
-    .card-cert{ background:#fff; border-left:4px solid; border-left-color:#ddd; border-radius:12px; padding:1rem; box-shadow:0 2px 8px rgba(0,0,0,.06); height:100%; }
-    .card-cert.vigente{ border-left-color:#39b46c; }
-    .card-cert.vencido{ border-left-color:#f3b343; }
-    .badge-v{ background:#dbf1e5; color:#1b6b3f; } .badge-x{ background:#fff2cf; color:#8a6509; }
-    .empty{ text-align:center; padding:3rem 1rem; color:#6b7280; }
-    .btn-informe{ background:#1e3a1a; border:none; color:#fff; }
-    .btn-informe:hover{ opacity:.9; color:#fff; }
-    .btn-download{ background:var(--c2); color:#fff; border:none; padding:.45rem .8rem; border-radius:8px; font-size:.875rem; }
+    body {
+      background-color: #f5f5f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .header-collahuasi {
+      background-color: var(--color-primary);
+      color: #fff;
+      padding: 2rem 0 1.5rem 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .collahuasi-logo {
+      display: block;
+      margin: 0 auto 1.2rem auto;
+      max-width: 320px;
+      width: 100%;
+      height: auto;
+      border-radius: 20px;
+    }
+    .title-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .search-box {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .cert-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      border-left: 4px solid;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-bottom: 1rem;
+      min-height: 100%;
+    }
+    .cert-card:hover {
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+      transform: translateY(-2px);
+    }
+    .cert-card.vigente { border-left-color: var(--color-accent); }
+    .cert-card.vencido { border-left-color: var(--color-warning); }
+
+    .badge-vigente { background-color: #d4edda; color: #155724; }
+    .badge-vencido { background-color: #fff3cd; color: #856404; }
+
+    .status-badge {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 1rem; margin: 2rem 0 1rem;
+    }
+    .section-line { width: 4px; height: 32px; border-radius: 2px; }
+    .btn-download {
+      background-color: var(--color-secondary);
+      color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 8px;
+      font-size: 0.875rem; cursor: pointer; transition: opacity 0.2s ease;
+    }
+    .btn-download:hover { opacity: 0.9; }
+
+    .loading-spinner {
+      border: 4px solid #f3f3f3; border-top: 4px solid var(--color-secondary);
+      border-radius: 50%; width: 60px; height: 60px;
+      animation: spin 1s linear infinite; margin: 2rem auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+
+    .empty-state { text-align: center; padding: 3rem 1rem; }
+    .empty-state i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+
+    .kpi-pill { color:#fff; border-radius: 999px; padding: .35rem .75rem; font-weight:600; }
+    .kpi-pill.vig { background: #1f8a46; }
+    .kpi-pill.ven { background: #c98208; }
   </style>
 </head>
 <body>
-  <!-- HEADER -->
-  <header class="header">
-    <div class="container position-relative">
-      <img class="logo" src="https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/LOGO2.0.png" alt="Collahuasi" />
-      <div class="d-flex align-items-center gap-3 flex-wrap">
-        <i class="fa-solid fa-hard-hat" style="font-size:2rem;color:var(--cWarn)"></i>
-        <div class="me-auto">
-          <h1 class="h3 mb-1">Certificaciones Collahuasi</h1>
-          <div class="text-white-50 small">Sistema de Consulta de Certificaciones</div>
+  <!-- Header -->
+  <header class="header-collahuasi" role="banner">
+    <div class="container">
+      <img src="https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/LOGO2.0.png" alt="Collahuasi" class="collahuasi-logo" />
+      <div class="title-section">
+        <i class="fas fa-hard-hat" style="font-size: 3rem; color: var(--color-warning);"></i>
+        <div style="flex: 1;">
+          <h1 class="mb-0">Certificaciones Collahuasi</h1>
+          <p class="mb-0 opacity-75" style="font-size: 0.9rem;">Sistema de Consulta de Certificaciones</p>
         </div>
-        <!-- Enlace directo al dashboard -->
-        <a href="informe.html" class="btn btn-sm btn-informe">
-          <i class="fa-solid fa-chart-line me-1"></i> Informe
-        </a>
-        <div id="status" class="ms-2"></div>
+        <div id="statusContainer" aria-live="polite"></div>
       </div>
 
-      <!-- barra de búsqueda -->
-      <div id="searchBox" class="search-box mt-3" style="display:none">
+      <!-- Search -->
+      <div id="searchContainer" class="search-box mt-4" style="display:none;" role="search">
         <div class="row g-2">
           <div class="col-md-10">
-            <input id="rut" class="form-control form-control-lg" placeholder="Ingrese RUT (Ej: 12.345.678-9)" maxlength="12" autocomplete="off" />
+            <input type="text" id="rutInput" class="form-control form-control-lg" placeholder="Ingrese RUT (Ej: 12.345.678-9)" maxlength="12" inputmode="latin" autocomplete="off" aria-label="RUT del trabajador" />
           </div>
-          <div class="col-md-2 d-grid">
-            <button id="btnBuscar" class="btn btn-lg" style="background:var(--c2);color:#fff">
-              <i class="fa-solid fa-magnifying-glass me-1"></i> Buscar
+          <div class="col-md-2">
+            <button id="btnSearch" class="btn btn-lg w-100" style="background-color: var(--color-secondary); color: #fff;">
+              <i class="fas fa-search"></i> Buscar
             </button>
           </div>
         </div>
         <div class="form-text mt-2">Se valida dígito verificador y formato automáticamente.</div>
       </div>
 
-      <!-- mensaje inicial -->
-      <div id="noDataMsg" class="search-box mt-3 text-center">
-        <i class="fa-solid fa-circle-exclamation" style="font-size:2.2rem;color:var(--cWarn)"></i>
-        <p class="mt-2 mb-1 fw-semibold text-dark">Sistema sin datos cargados</p>
-        <p class="mb-0 text-secondary small">Espere unos segundos mientras se cargan los datos automáticamente</p>
-      </div>
-    </div>
-  </header>
+      <!-- No data message -->
+      <div id="noDataMessage" class="search-box mt-4 text-center">
+        <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--color-warning);"></i>
+        <p class="text-dark mt-3 mb-1">Sistema sin datos cargados</p>
+        <p class="text-muted small">Espere unos segundos mientras se cargan los datos automáticamente</p>
+          <a href="informe.html" class="position-absolute top-0 end-0 m-3" title="Ver gráficos">
+      <i class="fas fa-chart-line fa-2x text-white"></i>
+    </a>
+  </div>
+  <a href="informe.html" class="position-absolute top-0 end-0 m-3" title="Ver gráficos">
+    <i class="fas fa-chart-line fa-2x text-white"></i>
+  </a>
+</div>
+</header>
 
-  <!-- MAIN -->
-  <main class="container my-4">
-    <div id="kpis" class="d-flex flex-wrap gap-2 mb-3"></div>
-
-    <!-- Exportar PDF: oculto hasta que existan resultados -->
-    <div id="exportBox" class="d-flex justify-content-end mb-3" style="display:none">
-      <button id="btnPDF" class="btn" style="background:#de990e;color:#fff">
-        <i class="fa-solid fa-file-pdf me-1"></i> Exportar PDF
+  <!-- Main -->
+  <main class="container my-4" role="main">
+    <div id="kpis" class="d-flex gap-2 mb-3 flex-wrap" aria-live="polite"></div>
+    <div id="exportContainer" class="d-flex justify-content-end mb-3" style="display:none;">
+      <button id="btnExportPDF" class="btn" style="background-color: var(--color-warning); color: #fff;">
+        <i class="fas fa-file-pdf me-1"></i> Exportar PDF
       </button>
     </div>
-
-    <div id="loading" class="text-center text-secondary" style="display:none">
-      <div class="spinner-border text-success" role="status" aria-label="Cargando"></div>
-      <div class="small mt-2">Buscando certificaciones…</div>
+    <div id="loadingContainer" style="display:none;">
+      <div class="loading-spinner" role="status" aria-label="Cargando"></div>
+      <p class="text-center text-muted">Buscando certificaciones...</p>
     </div>
-
-    <div id="results" class="row g-3"></div>
-
-    <div id="empty" class="empty" style="display:none">
-      <i class="fa-solid fa-magnifying-glass" style="font-size:3rem"></i>
-      <h3 class="h5 mt-3">Busque certificaciones por RUT</h3>
-      <p>Ingrese el RUT del trabajador para ver sus certificaciones</p>
+    <div id="resultsContainer" class="row g-3"></div>
+    <div id="emptyResults" style="display:none;" class="empty-state">
+      <i class="fas fa-search text-muted"></i>
+      <h3 class="text-muted">Busque certificaciones por RUT</h3>
+      <p class="text-muted">Ingrese el RUT del trabajador para ver sus certificaciones</p>
     </div>
   </main>
 
-  <!-- Modal de guía -->
+  <!-- Guide Modal -->
   <div class="modal fade" id="guideModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header" style="background:var(--c1);color:#fff">
-          <h5 class="modal-title">Guía de descarga</h5>
-          <button class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <div class="modal-header" style="background-color: var(--color-primary); color: #fff;">
+          <h5 class="modal-title" id="guideModalTitle"></h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
-        <div class="modal-body" id="guideBody"></div>
+        <div class="modal-body" id="guideModalBody"></div>
         <div class="modal-footer">
-          <a id="guideLink" href="#" target="_blank" class="btn" style="background:var(--c2);color:#fff">
-            <i class="fa-solid fa-up-right-from-square me-1"></i> Ir al Portal
+          <a id="guideLink" href="#" target="_blank" rel="noopener" class="btn" style="background-color: var(--color-secondary); color: #fff;">
+            <i class="fas fa-external-link-alt"></i> Ir al Portal de Descarga
           </a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script>
-    dayjs.locale('es'); dayjs.extend(window.dayjs_plugin_customParseFormat);
+    // ===== Config =====
+    const jsonUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/tableConvert.com_jt1fa1.json";
+    const CACHE_KEY = 'colla_cert_data_v1';
+    const CACHE_MS = 24 * 60 * 60 * 1000; // 24h
 
-    // -------- CONFIG Y FALLBACKS 429 --------
-    const RAW = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/tableConvert.com_jt1fa1.json";
-    const CDN = "https://cdn.jsdelivr.net/gh/gocasesorias-arch/CollahuasiCap@main/tableConvert.com_jt1fa1.json";
-    const LOCAL = "data/tableConvert.com_jt1fa1.json"; // súbelo si quieres fallback local
-    const dataSources = [
-      () => fetch(CDN, {cache:"no-store"}),
-      () => fetch(RAW + "?v=" + Date.now(), {cache:"no-store"}),
-      () => fetch(LOCAL, {cache:"no-store"}),
-    ];
-    const CACHE_KEY = "colla_cert_data_v1";
-    const CACHE_MS  = 24*60*60*1000;
+    dayjs.locale('es');
+    dayjs.extend(window.dayjs_plugin_customParseFormat);
 
-    // -------- ESTADO UI --------
-    const $status = document.getElementById("status");
-    const $search = document.getElementById("searchBox");
-    const $noData = document.getElementById("noDataMsg");
-    const $kpis   = document.getElementById("kpis");
-    const $results= document.getElementById("results");
-    const $loading= document.getElementById("loading");
-    const $empty  = document.getElementById("empty");
-    const $export = document.getElementById("exportBox");
-    const $rut    = document.getElementById("rut");
+    let allData = [];
+    let dataLoaded = false;
+    let lastPDFData = [];
+    let lastSearchedRut = '';
+    let lastWorkerInfo = null;
 
-    let ALL = [];
-    let lastRows = [];
-    let lastRut = "";
-    let lastWorker = {trabajador:"-", posicion:"-"};
+    const categorias = {
+      equiposMoviles: [
+        "Grúas móviles tipo AT", "Operador Rigger", "OPERAR CAMIÓN PLUMA",
+        "OPERAR GRÚA ALZAHOMBRE", "OPERAR GRÚA HORQUILLA", "OPERAR GRÚA PEDESTAL",
+        "OPERAR GRÚA PLUMA", "OPERAR PUENTE GRÚA", "OPERAR RETROEXCAVADORA"
+      ],
+      epf: [
+        "AISLAMIENTO, BLOQUEO Y PRUEBAS DE ENERGÍA EPF#5",
+        "PROTECCIÓN CONTRA CAÍDAS EPF#6",
+        "TÉCNICAS Y MANIOBRAS DE IZAJE Y LEVANTE (RIGGER)"
+      ]
+    };
 
-    function setLoadingBadge(){
-      $status.innerHTML = `<span class="pill" style="background:#fff3cd;color:#7a5a00">
-        <i class="fa-solid fa-circle-exclamation"></i> Cargando datos…
-      </span>`;
-      $search.style.display="none"; $noData.style.display="block";
+    const guides = {
+      equiposMoviles: {
+        title: "Guía de Descarga - Equipos Móviles",
+        link: "https://participantes.ceim.cl/index.asp",
+        steps: [
+          "Ingrese al portal CEIM haciendo clic en el botón de abajo",
+          "Inicie sesión con sus credenciales",
+          "Navegue a la sección 'Mis Certificaciones'",
+          "Busque su certificación de equipos móviles",
+          "Haga clic en 'Descargar' para obtener el PDF",
+          "El certificado se descargará automáticamente"
+        ]
+      },
+      epf: {
+        title: "Guía de Descarga - Estándares de Prevención de Fatalidades",
+        link: "https://certificate.fsmspa.com/",
+        steps: [
+          "Acceda al portal FSM haciendo clic en el botón de abajo",
+          "Ingrese su RUT",
+          "Seleccione el certificado EPF que desea descargar",
+          "Verifique que el certificado esté vigente",
+          "Presione 'Descargar Certificado'",
+          "Guarde el archivo PDF en su computador"
+        ]
+      },
+      otros: {
+        title: "Guía de Descarga - Otras Certificaciones",
+        link: "https://participantes.ceim.cl/index.asp",
+        steps: [
+          "Ingrese al portal CEIM haciendo clic en el botón de abajo",
+          "Inicie sesión con sus credenciales",
+          "Navegue a la sección 'Mis Certificaciones'",
+          "Busque su certificación disponible",
+          "Haga clic en 'Descargar' para obtener el PDF",
+          "El certificado se descargará automáticamente"
+        ]
+      }
+    };
+
+    // ===== Utils =====
+    function formatRut(value) {
+      const cleaned = (value || '').replace(/[^0-9kK]/g, '');
+      if (!cleaned) return '';
+      const dv = cleaned.slice(-1);
+      const numbers = cleaned.slice(0, -1);
+      let formatted = '';
+      for (let i = numbers.length - 1, j = 0; i >= 0; i--, j++) {
+        if (j > 0 && j % 3 === 0) formatted = '.' + formatted;
+        formatted = numbers[i] + formatted;
+      }
+      return formatted + '-' + dv.toUpperCase();
     }
-    function setReadyBadge(total){
-      $status.innerHTML = `<span class="pill">
-        <i class="fa-solid fa-circle-check"></i> Sistema Activo
-      </span><div class="text-white-50 small mt-1 text-end">${total} registros</div>`;
-      $search.style.display="block"; $noData.style.display="none"; $empty.style.display="block";
-    }
-    function setErrorBadge(){
-      $status.innerHTML = `<span class="pill" style="background:#f8d7da;color:#7f1d1d">
-        <i class="fa-solid fa-circle-xmark"></i> Error cargando datos
-      </span>`;
-      $search.style.display="none"; $noData.style.display="block";
+
+    function computeDv(rutDigits) {
+      // Modulo 11
+      let M = 0, S = 1;
+      for (; rutDigits; rutDigits = Math.floor(rutDigits / 10)) {
+        S = (S + (rutDigits % 10) * (9 - (M++ % 6))) % 11;
+      }
+      return S ? String(S - 1) : 'K';
     }
 
-    // -------- CARGA CON CACHE + FALLBACK --------
-    async function loadData(){
-      setLoadingBadge();
-      // cache
-      try{
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
-        if (cached && (Date.now() - cached.t) < CACHE_MS && Array.isArray(cached.data)){
-          ALL = cached.data;
-          setReadyBadge(ALL.length);
+    function isRutValid(rut) {
+      const raw = (rut || '').replace(/\.|-/g, '').toUpperCase();
+      if (raw.length < 2) return false;
+      const body = raw.slice(0, -1);
+      const dv = raw.slice(-1);
+      if (!/^\d+$/.test(body)) return false;
+      return computeDv(parseInt(body, 10)) === dv;
+    }
+
+    function safeGet(obj, ...keys) {
+      return keys.reduce((acc, k) => (acc && acc[k] !== undefined ? acc[k] : acc && acc[k.toLowerCase()] !== undefined ? acc[k.toLowerCase()] : undefined), obj);
+    }
+
+    function parseDate(value) {
+      if (!value) return null;
+      // Try several common formats; fallback to native Date
+      const cand = [
+        'DD/MM/YYYY', 'D/M/YYYY', 'YYYY-MM-DD', 'DD-MM-YYYY',
+        'D-MM-YYYY', 'DD.MM.YYYY', 'YYYY/MM/DD'
+      ];
+      for (const f of cand) {
+        const d = dayjs(value, f, true);
+        if (d.isValid()) return d;
+      }
+      const d2 = dayjs(value);
+      return d2.isValid() ? d2 : null;
+    }
+
+    function formatDate(d) { return d ? d.format('DD-MM-YYYY') : '—'; }
+
+    function categorizarCertificado(nombre) {
+      if (!nombre) return 'otros';
+      const nU = String(nombre).toUpperCase();
+      if (categorias.equiposMoviles.some(eq => nU.includes(eq.toUpperCase()))) return 'equiposMoviles';
+      if (categorias.epf.some(ep => nU.includes(ep.toUpperCase()))) return 'epf';
+      return 'otros';
+    }
+
+    function debounce(fn, wait = 350) {
+      let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); };
+    }
+
+    // ===== UI state =====
+    const statusContainer = document.getElementById('statusContainer');
+    const searchContainer = document.getElementById('searchContainer');
+    const noDataMessage = document.getElementById('noDataMessage');
+    const emptyResults = document.getElementById('emptyResults');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const loadingContainer = document.getElementById('loadingContainer');
+    const kpis = document.getElementById('kpis');
+
+    function setStatusLoading() {
+      statusContainer.innerHTML = `
+        <div class="status-badge" style="background-color:#fff3cd;color:#856404;">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span><strong>Cargando datos...</strong></span>
+        </div>`;
+      searchContainer.style.display = 'none';
+      noDataMessage.style.display = 'block';
+      emptyResults.style.display = 'none';
+    }
+
+    function setStatusReady(total) {
+      statusContainer.innerHTML = `
+        <div class="status-badge">
+          <i class="fas fa-check-circle"></i>
+          <span><strong>Sistema Activo</strong></span>
+        </div>
+        <div class="text-white-50 small text-end mt-1">${total} registros</div>`;
+      searchContainer.style.display = 'block';
+      noDataMessage.style.display = 'none';
+      emptyResults.style.display = 'block';
+    }
+
+    function setStatusError() {
+      statusContainer.innerHTML = `
+        <div class="status-badge" style="background-color:#f8d7da;color:#721c24;">
+          <i class="fas fa-times-circle"></i>
+          <span><strong>Error cargando datos</strong></span>
+        </div>`;
+      searchContainer.style.display = 'none';
+      noDataMessage.style.display = 'block';
+      emptyResults.style.display = 'none';
+    }
+
+    // ===== Data load with cache =====
+    async function fetchWithTimeout(resource, options = {}) {
+      const { timeout = 15000 } = options;
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      try {
+        const response = await fetch(resource, { ...options, signal: controller.signal });
+        clearTimeout(id);
+        return response;
+      } catch (e) {
+        clearTimeout(id);
+        throw e;
+      }
+    }
+
+    async function loadData() {
+      setStatusLoading();
+      // Try cache first
+      try {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+        if (cached && (Date.now() - cached.t) < CACHE_MS && Array.isArray(cached.data)) {
+          allData = cached.data;
+          dataLoaded = true;
+          setStatusReady(allData.length);
           return;
         }
-      }catch(_) {}
+      } catch { /* ignore cache errors */ }
 
-      // intentos en cadena
-      let ok = false, json = null, error = null;
-      for (const tryFetch of dataSources){
-        try{
-          const r = await tryFetch();
-          if (!r.ok) { error = new Error("HTTP "+r.status); continue; }
-          json = await r.json();
-          if (!Array.isArray(json)) throw new Error("Formato JSON inválido");
-          ok = true; break;
-        }catch(e){ error = e; }
+      try {
+        const resp = await fetchWithTimeout(jsonUrl, { timeout: 20000 });
+        if (!resp.ok) throw new Error('No se pudo descargar el archivo JSON');
+        const json = await resp.json();
+        if (!Array.isArray(json)) throw new Error('Formato JSON inválido');
+        allData = json;
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), data: allData }));
+        dataLoaded = true;
+        setStatusReady(allData.length);
+      } catch (err) {
+        console.error('Error al cargar el JSON:', err);
+        setStatusError();
       }
-      if (!ok){ console.error("Falló carga:", error); setErrorBadge(); return; }
-
-      ALL = json;
-      try{ localStorage.setItem(CACHE_KEY, JSON.stringify({t:Date.now(), data:ALL})); }catch(_){}
-      setReadyBadge(ALL.length);
     }
 
-    // -------- UTILIDADES --------
-    function fmtRut(x){
-      const clean = (x||"").replace(/[^0-9kK]/g,"");
-      if (!clean) return "";
-      const dv = clean.slice(-1).toUpperCase();
-      const body = clean.slice(0,-1);
-      return body.replace(/\B(?=(\d{3})+(?!\d))/g,".") + "-" + dv;
-    }
-    function dvCalc(n){
-      let M=0,S=1; for(;n;n=Math.floor(n/10)) S=(S+(n%10)*(9-(M++%6)))%11;
-      return S? String(S-1) : "K";
-    }
-    function rutValid(rut){
-      const raw = (rut||"").replace(/\.|-/g,"").toUpperCase();
-      if (raw.length<2) return false;
-      const body = raw.slice(0,-1), dv = raw.slice(-1);
-      if (!/^\d+$/.test(body)) return false;
-      return dvCalc(parseInt(body,10))===dv;
-    }
-    function nrmRut(x){ return (x||"").replace(/\.|-/g,"").toUpperCase().trim(); }
-    function g(obj,...keys){ for(const k of keys){ if (obj?.[k]!=null) return obj[k]; if (obj?.[k?.toLowerCase?.()]!=null) return obj[k.toLowerCase()]; } }
-    function pDate(v){
-      if(!v) return null;
-      const fmts=['DD/MM/YYYY','D/M/YYYY','YYYY-MM-DD','DD-MM-YYYY','D-MM-YYYY','YYYY/MM/DD'];
-      for(const f of fmts){ const d=dayjs(v,f,true); if(d.isValid()) return d; }
-      const d2=dayjs(v); return d2.isValid()? d2 : null;
-    }
-    function fDate(d){ return d? d.format('DD-MM-YYYY') : '—'; }
+    // ===== Search =====
+    function normalizeRut(rut) { return (rut || '').replace(/\.|-/g, '').toUpperCase().trim(); }
 
-    function categorizar(nombre){
-      const n = String(nombre||"").toUpperCase();
-      const MOV = ["GRÚAS MÓVILES TIPO AT","OPERAR CAMIÓN PLUMA","OPERAR GRÚA","PUENTE GRÚA","RETROEXCAVADORA","RIGGER"];
-      const EPF = ["EPF#5","EPF#6","TÉCNICAS Y MANIOBRAS DE IZAJE"];
-      if (MOV.some(s => n.includes(s))) return "equiposMoviles";
-      if (EPF.some(s => n.includes(s))) return "epf";
-      return "otros";
+    function getWorkerSummary(items) {
+      const first = items[0] || {};
+      const trabajador = first.Trabajador || first.trabajador || '—';
+      const pos = safeGet(first, 'Posición') || safeGet(first, 'Posicion') || '—';
+      return { trabajador, posicion: pos };
     }
 
-    // -------- RENDER --------
-    function showKPIs(rows){
-      if (!rows.length){ $kpis.innerHTML=""; $export.style.display="none"; return; }
-      const vig = rows.filter(r=>r.vigente).length;
-      const ven = rows.length - vig;
-      $kpis.innerHTML = `
-        <span class="kpi v"><i class="fa-solid fa-circle-check me-1"></i>Vigentes: ${vig}</span>
-        <span class="kpi x"><i class="fa-solid fa-triangle-exclamation me-1"></i>Vencidos: ${ven}</span>`;
-      $export.style.display = rows.length ? "flex" : "none";
+    function buildKpis(list) {
+      if (!Array.isArray(list) || !list.length) { kpis.innerHTML = '';
+          document.getElementById('exportContainer').style.display = 'none'; return; }
+      const totals = { vig: 0, ven: 0 };
+      for (const c of list) { totals[c.vigente ? 'vig' : 'ven']++; }
+      kpis.innerHTML = `
+        <span class="kpi-pill vig"><i class="fa-solid fa-circle-check me-1"></i>Vigentes: ${totals.vig}</span>
+        <span class="kpi-pill ven"><i class="fa-solid fa-triangle-exclamation me-1"></i>Vencidos: ${totals.ven}</span>`;
     }
 
-    function certCard(c){
+    function searchCertifications() {
+      const rutInput = document.getElementById('rutInput').value;
+      if (rutInput.length < 9) return;
+
+      // Validate RUT
+      if (!isRutValid(rutInput)) {
+        resultsContainer.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-id-card-clip text-muted"></i>
+            <h3 class="text-muted">RUT inválido</h3>
+            <p class="text-muted">Revise el formato y el dígito verificador.</p>
+            <p class="text-muted small">Ejemplo: 12.345.678-9</p>
+          </div>`;
+        return;
+      }
+
+      loadingContainer.style.display = 'block';
+      resultsContainer.innerHTML = '';
+      emptyResults.style.display = 'none';
+
+      setTimeout(() => {
+        const cleanRut = normalizeRut(rutInput);
+        const matches = allData.filter((item) => {
+          const itemRut = normalizeRut(String(item.RUT || item.rut || ''));
+          return itemRut && itemRut === cleanRut;
+        });
+
+        loadingContainer.style.display = 'none';
+
+        if (matches.length === 0) {
+          resultsContainer.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-times-circle text-muted"></i>
+              <h3 class="text-muted">No se encontraron certificaciones</h3>
+              <p class="text-muted">Verifique que el RUT ingresado sea correcto</p>
+              <p class="text-muted small">RUT buscado: ${formatRut(cleanRut)}</p>
+            </div>`;
+          kpis.innerHTML = '';
+          return;
+        }
+
+        // Build normalized records
+        const normalized = matches.map((cert) => {
+          const categoria = categorizarCertificado(cert.Certificado || cert.certificado);
+          const fi = parseDate(cert['Fecha Inicio Vigencia'] || cert.fecha_inicio_vigencia);
+          const ft = parseDate(cert['Fecha Termino Vigencia'] || cert.fecha_termino_vigencia);
+          const vigente = ft ? ft.endOf('day').isAfter(dayjs()) : false;
+          return {
+            categoria,
+            nombre: cert.Certificado || cert.certificado || '—',
+            fechaInicio: fi,
+            fechaTermino: ft,
+            vigente,
+            trabajador: cert.Trabajador || cert.trabajador || '—',
+            posicion: safeGet(cert, 'Posición') || safeGet(cert, 'Posicion') || '—',
+            otec: cert.Otec || cert.otec || '—',
+          };
+        });
+
+        // Prepare PDF data
+        lastPDFData = normalized;
+        lastSearchedRut = formatRut(cleanRut);
+        lastWorkerInfo = getWorkerSummary(matches);
+        document.getElementById('exportContainer').style.display = 'flex';
+
+        // KPIs
+        buildKpis(normalized);
+
+        // Group by categoria and sort by vencimiento asc
+        const groups = { equiposMoviles: [], epf: [], otros: [] };
+        for (const n of normalized) groups[n.categoria].push(n);
+        for (const key of Object.keys(groups)) {
+          groups[key].sort((a, b) => {
+            const at = a.fechaTermino ? a.fechaTermino.valueOf() : Infinity;
+            const bt = b.fechaTermino ? b.fechaTermino.valueOf() : Infinity;
+            return at - bt;
+          });
+        }
+
+        displayResults(groups);
+      }, 300);
+    }
+
+    function createCertCard(cert, categoria) {
+      const ft = formatDate(cert.fechaTermino);
+      const fi = formatDate(cert.fechaInicio);
       return `
         <div class="col-md-4">
-          <div class="card-cert ${c.vigente ? 'vigente':'vencido'}">
+          <div class="cert-card ${cert.vigente ? 'vigente' : 'vencido'} h-100">
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <h6 class="mb-0 pe-2">${c.nombre}</h6>
-              <i class="fa-solid ${c.vigente ? 'fa-circle-check text-success':'fa-circle-exclamation text-warning'}"></i>
+              <h6 class="mb-0 flex-grow-1 pe-2">${cert.nombre}</h6>
+              <i class="fas fa-${cert.vigente ? 'check-circle text-success' : 'exclamation-circle text-warning'}"></i>
             </div>
-            <div class="small text-secondary mb-2">
-              <div><strong>Inicio:</strong> ${fDate(c.fi)}</div>
-              <div><strong>Vencimiento:</strong> ${fDate(c.ft)}</div>
-              <div><strong>OTEC:</strong> ${c.otec}</div>
+            <div class="small text-muted mb-2">
+              <p class="mb-1"><strong>Inicio:</strong> ${fi}</p>
+              <p class="mb-1"><strong>Vencimiento:</strong> ${ft}</p>
+              <p class="mb-0"><strong>OTEC:</strong> ${cert.otec}</p>
             </div>
             <div class="d-flex justify-content-between align-items-center">
-              <span class="badge ${c.vigente?'badge-v':'badge-x'}">${c.vigente?'VIGENTE':'VENCIDO'}</span>
-              <button class="btn-download" onclick="showGuide('${c.cat}')">
-                <i class="fa-solid fa-download me-1"></i> Descargar
+              <span class="badge ${cert.vigente ? 'badge-vigente' : 'badge-vencido'}">
+                ${cert.vigente ? 'VIGENTE' : 'VENCIDO'}
+              </span>
+              <button class="btn-download" onclick="showGuide('${categoria}')">
+                <i class="fas fa-download"></i> Descargar
               </button>
             </div>
           </div>
         </div>`;
     }
 
-    function renderResults(rows){
-      if (!rows.length){
-        $results.innerHTML = `
-          <div class="empty">
-            <i class="fa-solid fa-circle-xmark" style="font-size:3rem"></i>
-            <h3 class="h5 mt-3">No se encontraron certificaciones</h3>
-            <p class="mb-0">Verifique el RUT ingresado</p>
-          </div>`;
-        $export.style.display="none"; return;
-      }
+    function sectionBlock(title, color, count, inner) {
+      return `
+        <div class="section-header">
+          <div class="section-line" style="background-color:${color};"></div>
+          <h2 style="color: var(--color-primary);" class="mb-0">${title}</h2>
+          <span class="badge" style="background-color: rgba(0,0,0,.06); color: var(--color-primary);">${count}</span>
+        </div>
+        <div class="row g-3">${inner}</div>`;
+    }
 
-      // bloque datos del trabajador
-      const head = `
-        <div class="col-12">
-          <div class="card-cert">
-            <h5 style="color:var(--c1)">Datos del Trabajador</h5>
-            <div class="row">
-              <div class="col-md-6"><strong>Nombre:</strong> ${lastWorker.trabajador}</div>
-              <div class="col-md-6"><strong>Posición:</strong> ${lastWorker.posicion}</div>
+    function displayResults(groups) {
+      const first = groups.equiposMoviles[0] || groups.epf[0] || groups.otros[0];
+      let html = '';
+      if (first) {
+        html += `
+          <div class="col-12">
+            <div class="cert-card mb-4">
+              <h4 style="color: var(--color-primary);">Datos del Trabajador</h4>
+              <div class="row">
+                <div class="col-md-6"><p class="mb-1"><strong>Nombre:</strong> ${first.trabajador}</p></div>
+                <div class="col-md-6"><p class="mb-0"><strong>Posición:</strong> ${first.posicion}</p></div>
+              </div>
             </div>
-          </div>
-        </div>`;
-
-      const groups = {equiposMoviles:[], epf:[], otros:[]};
-      rows.forEach(r => groups[r.cat].push(r));
-
-      const section = (title, color, arr) => !arr.length ? "" : `
-        <div class="col-12 mt-3">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <div style="width:4px;height:24px;background:${color};border-radius:2px"></div>
-            <h5 class="mb-0" style="color:var(--c1)">${title}</h5>
-            <span class="badge" style="background:#f3f4f6;color:#374151">${arr.length}</span>
-          </div>
-          <div class="row g-3">${arr.map(certCard).join("")}</div>
-        </div>`;
-
-      $results.innerHTML =
-        head +
-        section("Equipos Móviles","var(--c2)", groups.equiposMoviles) +
-        section("Estándares de Prevención de Fatalidades (EPF)","var(--cWarn)", groups.epf) +
-        section("Otras Certificaciones","var(--c2)", groups.otros);
-    }
-
-    // -------- BUSCAR --------
-    function search(){
-      // al iniciar búsqueda oculto el PDF
-      $export.style.display="none";
-
-      const val = $rut.value;
-      if (val.length < 9) return;
-      if (!rutValid(val)){
-        $results.innerHTML = `
-          <div class="empty">
-            <i class="fa-solid fa-id-card-clip" style="font-size:3rem"></i>
-            <h3 class="h5 mt-3">RUT inválido</h3>
-            <p class="mb-0">Revise el formato y dígito verificador. Ej: 12.345.678-9</p>
           </div>`;
-        $kpis.innerHTML=""; return;
       }
 
-      $loading.style.display="block"; $results.innerHTML=""; $empty.style.display="none";
-      setTimeout(() => {
-        const clean = nrmRut(val);
-        const items = ALL.filter(it => nrmRut(String(g(it,"RUT","rut"))) === clean);
-        $loading.style.display="none";
+      if (groups.equiposMoviles.length) {
+        html += sectionBlock(
+          'Equipos Móviles',
+          'var(--color-secondary)',
+          groups.equiposMoviles.length,
+          groups.equiposMoviles.map(c => createCertCard(c, 'equiposMoviles')).join('')
+        );
+      }
 
-        if (!items.length){
-          renderResults([]); showKPIs([]); return;
-        }
+      if (groups.epf.length) {
+        html += sectionBlock(
+          'Estándares de Prevención de Fatalidades (EPF)',
+          'var(--color-warning)',
+          groups.epf.length,
+          groups.epf.map(c => createCertCard(c, 'epf')).join('')
+        );
+      }
 
-        lastWorker = {
-          trabajador: g(items[0],"Trabajador","trabajador") || "—",
-          posicion:   g(items[0],"Posición","Posicion","posicion") || "—"
-        };
+      if (groups.otros.length) {
+        html += sectionBlock(
+          'Otras Certificaciones',
+          'var(--color-secondary)',
+          groups.otros.length,
+          groups.otros.map(c => createCertCard(c, 'otros')).join('')
+        );
+      }
 
-        const norm = items.map(it => {
-          const fi = pDate(g(it,"Fecha Inicio Vigencia","fecha_inicio_vigencia"));
-          const ft = pDate(g(it,"Fecha Termino Vigencia","fecha_termino_vigencia"));
-          return {
-            nombre: g(it,"Certificado","certificado") || "—",
-            fi, ft,
-            vigente: ft ? ft.endOf("day").isAfter(dayjs()) : false,
-            otec: g(it,"Otec","otec") || "—",
-            cat:  categorizar(g(it,"Certificado","certificado"))
-          };
-        }).sort((a,b) => {
-          const A = a.ft? a.ft.valueOf() : Infinity;
-          const B = b.ft? b.ft.valueOf() : Infinity;
-          return A - B;
-        });
-
-        lastRows = norm; lastRut = fmtRut(clean);
-        showKPIs(norm);
-        renderResults(norm);
-      }, 250);
+      resultsContainer.innerHTML = html || `
+        <div class="empty-state">
+          <i class="fas fa-database text-muted"></i>
+          <h3 class="text-muted">Sin resultados</h3>
+          <p class="text-muted">No hay certificaciones para mostrar.</p>
+        </div>`;
     }
 
-    // -------- GUÍA MODAL --------
-    function showGuide(cat){
-      const guides = {
-        equiposMoviles:{
-          link:"https://participantes.ceim.cl/index.asp",
-          steps:[
-            "Ingrese al portal CEIM",
-            "Inicie sesión con sus credenciales",
-            "Abra 'Mis Certificaciones'",
-            "Busque su certificación de equipos móviles",
-            "Presione 'Descargar'"
-          ]
-        },
-        epf:{
-          link:"https://certificate.fsmspa.com/",
-          steps:[
-            "Acceda al portal FSM",
-            "Ingrese su RUT",
-            "Seleccione la certificación EPF",
-            "Verifique vigencia",
-            "Presione 'Descargar Certificado'"
-          ]
-        },
-        otros:{
-          link:"https://participantes.ceim.cl/index.asp",
-          steps:[
-            "Ingrese al portal",
-            "Inicie sesión",
-            "Busque la certificación disponible",
-            "Descargue el PDF"
-          ]
-        }
-      };
-      const guide = guides[cat] || guides.otros;
-      const body = guide.steps.map((s,i)=>`
-        <div class="d-flex gap-3 mb-2">
-          <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width:28px;height:28px">${i+1}</div>
-          <div>${s}</div>
-        </div>`).join("") + `
-        <div class="alert alert-info mt-3"><strong>Nota:</strong> Si tiene problemas, contacte al área de capacitación.</div>`;
-      document.getElementById("guideBody").innerHTML = body;
-      document.getElementById("guideLink").href = guide.link;
-      new bootstrap.Modal(document.getElementById("guideModal")).show();
+    function showGuide(type) {
+      const guide = guides[type] || guides.otros;
+      const modal = new bootstrap.Modal(document.getElementById('guideModal'));
+      document.getElementById('guideModalTitle').textContent = guide.title;
+      document.getElementById('guideLink').href = guide.link;
+      let stepsHtml = '';
+      guide.steps.forEach((step, index) => {
+        stepsHtml += `
+          <div class="d-flex gap-3 mb-2">
+            <div class="step-number bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;">${index + 1}</div>
+            <p class="mb-0">${step}</p>
+          </div>`;
+      });
+      stepsHtml += `
+        <div class="alert alert-info mt-3">
+          <strong>Nota:</strong> Si tiene problemas para descargar su certificado, contacte al departamento de capacitación.
+        </div>`;
+      document.getElementById('guideModalBody').innerHTML = stepsHtml;
+      modal.show();
     }
-    window.showGuide = showGuide; // para el onclick
 
-    // -------- PDF --------
-    function exportPDF(){
-      if (!lastRows.length) return;
+    // ===== PDF Export =====
+    function exportToPDF() {
+      if (!lastPDFData || !lastPDFData.length) return;
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({unit:"pt", format:"a4"});
-      let y = 40, mx = 40;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const marginX = 40;
+      let y = 40;
 
       doc.setFontSize(14);
-      doc.text("Certificaciones Collahuasi - Informe", mx, y); y+=18;
+      doc.text('Certificaciones Collahuasi - Informe', marginX, y); y += 18;
       doc.setFontSize(10);
-      doc.text(`RUT: ${lastRut||"-"}`, mx, y); y+=14;
-      doc.text(`Trabajador: ${lastWorker.trabajador||"-"}`, mx, y); y+=14;
-      doc.text(`Posición: ${lastWorker.posicion||"-"}`, mx, y); y+=18;
+      const worker = lastWorkerInfo || {};
+      doc.text(`RUT: ${lastSearchedRut || '-'}`, marginX, y); y += 14;
+      doc.text(`Trabajador: ${worker.trabajador || '-'}`, marginX, y); y += 14;
+      doc.text(`Posición: ${worker.posicion || '-'}`, marginX, y); y += 20;
 
-      const rows = lastRows.map(c => [
-        c.nombre,
-        c.fi ? c.fi.format("DD-MM-YYYY") : "—",
-        c.ft ? c.ft.format("DD-MM-YYYY") : "—",
-        c.vigente ? "Vigente" : "Vencido",
-        c.otec,
-        c.cat
+      const rows = lastPDFData.map(c => [
+        c.nombre || '—',
+        c.fechaInicio ? c.fechaInicio.format('DD-MM-YYYY') : '—',
+        c.fechaTermino ? c.fechaTermino.format('DD-MM-YYYY') : '—',
+        c.vigente ? 'Vigente' : 'Vencido',
+        c.otec || '—',
+        c.categoria
       ]);
 
       doc.autoTable({
-        startY:y,
-        head:[["Certificado","Inicio","Vencimiento","Estado","OTEC","Categoría"]],
-        body:rows,
-        styles:{fontSize:8, cellPadding:4},
-        headStyles:{fillColor:[39,83,23], textColor:255},
-        alternateRowStyles:{fillColor:[246,247,249]},
-        margin:{left:mx, right:mx}
+        startY: y,
+        head: [['Certificado', 'Inicio', 'Vencimiento', 'Estado', 'OTEC', 'Categoría']],
+        body: rows,
+        styles: { fontSize: 8, cellPadding: 4 },
+        headStyles: { fillColor: [39, 83, 23], textColor: 255 },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        theme: 'striped',
+        margin: { left: marginX, right: marginX }
       });
 
-      const dateStr = new Date().toISOString().slice(0,10);
-      const nameSafe = (lastWorker.trabajador||"trabajador").replace(/[^a-zA-Z0-9-_]+/g,"_");
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const nameSafe = (worker.trabajador || 'trabajador').replace(/[^a-zA-Z0-9-_]+/g, '_');
       doc.save(`certificaciones_${nameSafe}_${dateStr}.pdf`);
     }
 
-    // -------- BINDINGS --------
-    document.getElementById("btnBuscar").addEventListener("click", search);
-    document.getElementById("btnPDF").addEventListener("click", exportPDF);
-    // formateo en vivo
-    $rut.addEventListener("input", (e) => {
-      const pos = e.target.selectionStart;
-      e.target.value = fmtRut(e.target.value);
-      e.target.selectionStart = e.target.selectionEnd = pos;
-    });
-    $rut.addEventListener("keypress", (e) => { if (e.key === "Enter") search(); });
+    // ===== Event bindings =====
+    const debouncedInput = debounce((e) => { e.target.value = formatRut(e.target.value); }, 0);
+    document.getElementById('rutInput').addEventListener('input', debouncedInput);
 
-    // -------- INIT --------
-    (async function(){
+    document.getElementById('rutInput').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') { searchCertifications(); }
+    });
+
+    document.getElementById('btnSearch').addEventListener('click', searchCertifications);
+    document.getElementById('btnExportPDF').addEventListener('click', exportToPDF);
+
+    // Init
+    (async function init() {
       await loadData();
-      // siempre oculto PDF al iniciar
-      $export.style.display = "none";
+      if (dataLoaded && allData.length > 0) {
+        setStatusReady(allData.length);
+      }
     })();
   </script>
 </body>
 </html>
+
+
 
 
 
