@@ -5,53 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Informe de Certificaciones</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind (ok desde CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Lucide -->
+  <!-- Lucide (íconos, opcional) -->
   <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
 
-  <!-- React 18 UMD -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <!-- Librerías VENDORIZADAS (locales) -->
+  <script src="vendor/react.min.js"></script>
+  <script src="vendor/react-dom.min.js"></script>
+  <script src="vendor/recharts.min.js"></script>
 
-  <!-- Babel (para JSX en el navegador) -->
+  <!-- Babel para ejecutar JSX en el navegador -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- Recharts UMD (primera opción: unpkg) -->
-  <script src="https://unpkg.com/recharts/umd/Recharts.min.js" crossorigin="anonymous"></script>
 
   <style>
     .spin { animation: spin 1s linear infinite }
     @keyframes spin { from {transform:rotate(0)} to {transform:rotate(360deg)} }
   </style>
-
-  <!-- Loader con fallback a jsDelivr -->
-  <script>
-    window.ensureRecharts = function ensureRecharts() {
-      return new Promise((resolve, reject) => {
-        if (window.Recharts) { resolve(); return; }
-
-        console.warn("[Informe] Recharts no llegó desde unpkg; probando jsDelivr…");
-        const s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/npm/recharts@2.12.7/umd/Recharts.min.js";
-        s.crossOrigin = "anonymous";
-        s.onload = () => window.Recharts ? resolve() : reject(new Error("Recharts sigue indefinido"));
-        s.onerror = () => reject(new Error("No se pudo cargar Recharts desde jsDelivr"));
-        document.head.appendChild(s);
-      });
-    };
-  </script>
 </head>
 <body class="bg-gray-50">
   <div id="root"></div>
 
-  <!-- Tu app, pero se ejecuta SOLO cuando Recharts esté listo -->
   <script type="text/babel" data-presets="env,react">
-  ensureRecharts().then(() => {
     const {useState, useMemo, useEffect} = React;
     const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
 
+    /* ===== Config ===== */
     const DATA_URL = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/tableConvert.com_jt1fa1.json";
 
     const CERTS_WHITELIST = new Set([
@@ -87,15 +67,15 @@
     const norm = v => (v ?? '').toString().trim();
     const normU = v => norm(v).toUpperCase();
     const normL = v => norm(v).toLowerCase();
-    const getAny = (o, ks) => { for (const k of ks) if (o?.[k] != null) return o[k]; };
+    const getAny = (obj, keys) => { for (const k of keys) if (obj?.[k] != null) return obj[k]; };
 
     const groupCount = (rows, keyFn, whereFn = () => true) => {
-      const m = new Map();
+      const map = new Map();
       for (const r of rows) if (whereFn(r)) {
         const k = keyFn(r) ?? '—';
-        m.set(k, (m.get(k)||0)+1);
+        map.set(k, (map.get(k) || 0) + 1);
       }
-      return Array.from(m, ([name, value]) => ({ name, value }));
+      return Array.from(map, ([name, value]) => ({ name, value }));
     };
     const groupPct = (rows, keyFn, predFn) => {
       const total = new Map(), hit = new Map();
@@ -128,7 +108,7 @@
         })();
       }, []);
 
-      useEffect(() => { if (window.lucide) lucide.createIcons({attrs:{'stroke-width':2}}); }, []);
+      useEffect(()=>{ if (window.lucide) lucide.createIcons({attrs:{'stroke-width':2}}); }, []);
 
       const canon = useMemo(() => (raw||[]).map(r => ({
         certificado: normU(getAny(r, ['Certificado','certificado','Nombre','nombre'])),
@@ -139,7 +119,8 @@
       })), [raw]);
 
       const universe = useMemo(() => canon.filter(r =>
-        CERTS_WHITELIST.has(r.certificado) && (r.estado === 'vigente' || r.estado === 'vencido')
+        CERTS_WHITELIST.has(r.certificado) &&
+        (r.estado === 'vigente' || r.estado === 'vencido')
       ), [canon]);
 
       const vps  = useMemo(() => Array.from(new Set(universe.map(r=>r.vp).filter(Boolean))), [universe]);
@@ -165,13 +146,16 @@
         for (const r of filtered) {
           const k = r.vp || '—';
           base[k] ??= { name:k, Vigentes:0, Vencidos:0 };
-          if (r.estado==='vigente') base[k].Vigentes++; else base[k].Vencidos++;
+          if (r.estado==='vigente') base[k].Vigentes++;
+          else base[k].Vencidos++;
         }
         return Object.values(base);
       }, [filtered]);
 
       const dataTopVencidosVP = useMemo(() =>
-        groupCount(filtered, r=>r.vp, r=>r.estado==='vencido').sort((a,b)=>b.value-a.value).slice(0,10)
+        groupCount(filtered, r=>r.vp, r=>r.estado==='vencido')
+          .sort((a,b)=>b.value-a.value)
+          .slice(0,10)
       , [filtered]);
 
       const dataPctVencidosSup = useMemo(() =>
@@ -191,29 +175,37 @@
       , [filtered]);
 
       if (error) {
-        return <div className="max-w-3xl mx-auto p-6">
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            <strong>Error:</strong> {error}
+        return (
+          <div className="max-w-3xl mx-auto p-6">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              <strong>Error:</strong> {error}
+            </div>
           </div>
-        </div>;
+        );
       }
       if (!raw) {
-        return <div className="flex items-center justify-center h-[60vh] text-gray-600">
-          <i data-lucide="loader-2" className="w-6 h-6 mr-2 spin"></i> Cargando datos...
-        </div>;
+        return (
+          <div className="flex items-center justify-center h-[60vh] text-gray-600">
+            <i data-lucide="loader-2" className="w-6 h-6 mr-2 spin"></i> Cargando datos...
+          </div>
+        );
       }
 
       return (
         <div className="max-w-7xl mx-auto p-6">
+          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Informe de Certificaciones</h1>
             <p className="text-gray-600">Datos cargados automáticamente desde GitHub Raw</p>
           </div>
 
+          {/* KPIs */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="p-3 bg-blue-100 rounded-lg text-blue-600"><i data-lucide="list-checks" className="w-5 h-5"></i></div>
+                <div className="p-3 bg-blue-100 rounded-lg text-blue-600">
+                  <i data-lucide="list-checks" className="w-5 h-5"></i>
+                </div>
                 <span className="text-2xl font-bold text-gray-800">{kpi.total}</span>
               </div>
               <h3 className="text-gray-600 text-sm font-medium">Registros considerados</h3>
@@ -221,7 +213,9 @@
 
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="p-3 bg-green-100 rounded-lg text-green-600"><i data-lucide="circle-check" className="w-5 h-5"></i></div>
+                <div className="p-3 bg-green-100 rounded-lg text-green-600">
+                  <i data-lucide="circle-check" className="w-5 h-5"></i>
+                </div>
                 <span className="text-2xl font-bold text-gray-800">{kpi.vig} ({kpi.pctVig}%)</span>
               </div>
               <h3 className="text-gray-600 text-sm font-medium">% Vigentes</h3>
@@ -229,7 +223,9 @@
 
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="p-3 bg-red-100 rounded-lg text-red-600"><i data-lucide="triangle-alert" className="w-5 h-5"></i></div>
+                <div className="p-3 bg-red-100 rounded-lg text-red-600">
+                  <i data-lucide="triangle-alert" className="w-5 h-5"></i>
+                </div>
                 <span className="text-2xl font-bold text-gray-800">{kpi.ven} ({kpi.pctVen}%)</span>
               </div>
               <h3 className="text-gray-600 text-sm font-medium">% Vencidos</h3>
@@ -237,7 +233,9 @@
 
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="p-3 bg-purple-100 rounded-lg text-purple-600"><i data-lucide="filter" className="w-5 h-5"></i></div>
+                <div className="p-3 bg-purple-100 rounded-lg text-purple-600">
+                  <i data-lucide="filter" className="w-5 h-5"></i>
+                </div>
                 <span className="text-2xl font-bold text-gray-800">
                   {(vpFiltro!=='todas')+(gerenciaFiltro!=='todas')+(supFiltro!=='todas')} filtros
                 </span>
@@ -246,7 +244,59 @@
             </div>
           </div>
 
+          {/* Filtros */}
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Vicepresidencia</label>
+                <select
+                  value={vpFiltro}
+                  onChange={e => { setVpFiltro(e.target.value); setGerenciaFiltro('todas'); setSupFiltro('todas'); }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="todas">Todas</option>
+                  {vps.map(v => <option key={v} value={v}>{v}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Gerencia</label>
+                <select
+                  value={gerenciaFiltro}
+                  onChange={e => { setGerenciaFiltro(e.target.value); setSupFiltro('todas'); }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="todas">Todas</option>
+                  {gers.map(g => <option key={g} value={g}>{g}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Superintendencia</label>
+                <select
+                  value={supFiltro}
+                  onChange={e => setSupFiltro(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="todas">Todas</option>
+                  {sups.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+
+              <div className="lg:col-span-3 flex items-end">
+                <button
+                  onClick={() => { setVpFiltro('todas'); setGerenciaFiltro('todas'); setSupFiltro('todas'); }}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex items-center gap-2"
+                >
+                  <i data-lucide="rotate-ccw" className="w-4 h-4"></i> Limpiar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Gráficos */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Vigentes vs Vencidos por Vicepresidencia</h3>
               <ResponsiveContainer width="100%" height={320}>
@@ -254,7 +304,8 @@
                   <CartesianGrid strokeDasharray="3 3"/>
                   <XAxis dataKey="name" fontSize={12}/>
                   <YAxis allowDecimals={false}/>
-                  <Tooltip/><Legend/>
+                  <Tooltip/>
+                  <Legend/>
                   <Bar dataKey="Vigentes" stackId="a" fill="#10B981"/>
                   <Bar dataKey="Vencidos" stackId="a" fill="#EF4444"/>
                 </BarChart>
@@ -325,17 +376,13 @@
                 </BarChart>
               </ResponsiveContainer>
             </div>
+
           </div>
         </div>
       );
     }
 
     ReactDOM.createRoot(document.getElementById('root')).render(<Informe/>);
-  }).catch(err => {
-    console.error("[Informe] Error cargando Recharts:", err);
-    const root = document.getElementById('root');
-    if (root) root.innerHTML = '<div class="max-w-xl mx-auto p-6 bg-red-50 border border-red-200 text-red-700 rounded">No se pudo cargar la librería de gráficos (Recharts). Verifica tu conexión de red o políticas que bloqueen CDNs.</div>';
-  });
   </script>
 </body>
 </html>
