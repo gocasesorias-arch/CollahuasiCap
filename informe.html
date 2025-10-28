@@ -1,301 +1,401 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard de Certificaciones</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Informe de Certificaciones</title>
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Lucide (iconos) -->
+  <!-- Lucide (íconos) -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <!-- React + ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel para JSX en el navegador -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Recharts -->
+  <script src="https://unpkg.com/recharts@2.5.0/dist/Recharts.js"></script>
 
   <style>
-    /* Estilo simple para contenedor y botón flotante */
-    .fab {
-      position: fixed;
-      top: 14px;
-      left: 14px;
-      z-index: 50;
-    }
+    /* spinner simple */
+    .spin { animation: spin 1s linear infinite }
+    @keyframes spin { from {transform:rotate(0)} to {transform:rotate(360deg)} }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
-  <!-- Botón esquina superior izquierda -->
-  <button id="openBtn" class="fab rounded-full p-3 bg-emerald-700 hover:bg-emerald-800 shadow-lg text-white"
-          title="Abrir dashboard" aria-label="Abrir dashboard">
-    <i data-lucide="chart-bar"></i>
-  </button>
+<body class="bg-gray-50">
+  <div id="root"></div>
 
-  <!-- Encabezado / portada inicial -->
-  <header id="cover"
-          class="min-h-[40vh] grid place-items-center text-center px-6">
-    <div>
-      <h1 class="text-3xl font-bold">Dashboard de Certificaciones</h1>
-      <p class="mt-2 text-gray-600">Haz clic en el botón con el icono de gráfico (arriba a la izquierda) para cargar datos.</p>
-      <p class="mt-1 text-xs text-gray-500">Fuente JSON pública (GitHub Raw).</p>
-    </div>
-  </header>
+  <script type="text/babel" data-presets="env,react">
+    const {useState, useMemo, useEffect} = React;
+    const {
+      BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+    } = Recharts;
 
-  <!-- Contenido del dashboard -->
-  <main id="dash" class="max-w-7xl mx-auto px-4 pb-12 hidden">
-    <!-- KPIs -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="kpiCards">
-      <!-- Tarjetas se llenan por JS -->
-    </section>
+    /* ========= Config ========= */
+    const DATA_URL = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/tableConvert.com_jt1fa1.json";
 
-    <!-- Gráficos -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="bg-white rounded-2xl p-4 shadow">
-        <h2 class="font-semibold mb-2">Estado de certificaciones</h2>
-        <canvas id="estadoPie" height="220"></canvas>
-      </div>
+    const CERTS_WHITELIST = new Set([
+      "AISLAMIENTO, BLOQUEO Y PRUEBAS DE ENERGÍA EPF#5",
+      "Camión de Transmisión Mack",
+      "Camión Friegthliner M2 112/ Transmisión Automática Allison",
+      "Camión Internacional 7600 / Transmisión Automática Allison",
+      "Camión Mercedes Benz AXOR 3131/ Transmisión ZF Secuencial",
+      "Camión Renault C-440 / Caja Automática OPTDRIVER",
+      "Camiones Mercedes Benz, Arocs 3236 B - Transmisión Powershift 3",
+      "Camiones Mercedes Benz, Arocs 3236 B - Transmisión Telligent",
+      "CERTIFICACIÓN PROTECCIÓN RADIOLÓGICA",
+      "Grúas móviles tipo AT",
+      "NFPA 70 E - SEGURIDAD ELECTRICA",
+      "Operación Caldera",
+      "Operador mantenedor",
+      "Operador Rigger",
+      "OPERAR CAMIÓN PLUMA",
+      "OPERAR GRÚA ALZAHOMBRE",
+      "OPERAR GRÚA HORQUILLA",
+      "OPERAR GRÚA PEDESTAL",
+      "OPERAR GRÚA PLUMA",
+      "OPERAR PUENTE GRÚA",
+      "OPERAR RETROEXCAVADORA",
+      "PROTECCIÓN CONTRA CAÍDAS EPF#6",
+      "PROTECCIONES RADIOLÓGICAS",
+      "Seguridad Eléctrica en Lugares de Trabajo - NFPA 70E",
+      "Señalero",
+      "Señalero Calificado",
+      "TÉCNICAS Y MANIOBRAS DE IZAJE Y LEVANTE (RIGGER)"
+    ].map(s => s.toUpperCase()));
 
-      <div class="bg-white rounded-2xl p-4 shadow">
-        <h2 class="font-semibold mb-2">Certificaciones por tipo</h2>
-        <canvas id="certBar" height="220"></canvas>
-      </div>
+    const norm = v => (v ?? '').toString().trim();
+    const normU = v => norm(v).toUpperCase();
+    const normL = v => norm(v).toLowerCase();
+    const getAny = (obj, keys) => { for (const k of keys) if (obj?.[k] != null) return obj[k]; };
 
-      <div class="bg-white rounded-2xl p-4 shadow">
-        <h2 class="font-semibold mb-2">Distribución por Vicepresidencia</h2>
-        <canvas id="vpBar" height="220"></canvas>
-      </div>
-
-      <div class="bg-white rounded-2xl p-4 shadow">
-        <h2 class="font-semibold mb-2">Vencimientos por mes</h2>
-        <canvas id="venciLine" height="220"></canvas>
-      </div>
-    </section>
-
-    <!-- Logs / errores -->
-    <section class="mt-6" id="logBox" hidden>
-      <div class="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3 text-sm" id="logMsg"></div>
-    </section>
-  </main>
-
-  <script>
-    // -------- Config --------
-    const jsonUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/tableConvert.com_jt1fa1.json";
-
-    // Colores corporativos sugeridos
-    const COLOR_OK = "#00563F";   // verde corporativo
-    const COLOR_WARN = "#E87722"; // naranja corporativo
-    const COLOR_BAD = "#C73E3A";  // rojo riesgo
-
-    // Charts refs para poder destruirlos al re-render
-    let chartEstado, chartCert, chartVP, chartVenci;
-
-    // Helpers ----------
-    const by = (k) => (a,b) => (a[k] > b[k]) ? 1 : (a[k] < b[k]) ? -1 : 0;
-
-    function safeParseRecords(json) {
-      // Soporta {records:[...]} o directamente [...]
-      if (Array.isArray(json)) return json;
-      if (json && Array.isArray(json.records)) return json.records;
-      // A veces tableconvert trae {data:{...}} u otra envoltura
-      if (json && json.data && Array.isArray(json.data)) return json.data;
-      return [];
-    }
-
-    function normalizeRow(row) {
-      // Normaliza claves esperadas desde tu dataset original
-      return {
-        Estado: (row["Estado"] || row["estado"] || "").toString().trim().toUpperCase(),
-        Certificado: (row["Certificado"] || row["certificado"] || "").toString().trim(),
-        Vicepresidencia: (row["Vicepresidencia"] || row["vicepresidencia"] || "").toString().trim(),
-        Gerencia: (row["Gerencia"] || row["gerencia"] || "").toString().trim(),
-        FechaTermino: (row["Fecha Termino Vigencia"] || row["Fecha termino vigencia"] || row["fecha_termino_vigencia"] || row["FechaTermino"] || "").toString().trim()
-      };
-    }
-
-    function countBy(arr, key) {
+    const groupCount = (rows, keyFn, whereFn = () => true) => {
       const map = new Map();
-      arr.forEach(o => {
-        const k = (o[key] ?? "").toString().trim() || "(Sin dato)";
+      for (const r of rows) if (whereFn(r)) {
+        const k = keyFn(r) ?? '—';
         map.set(k, (map.get(k) || 0) + 1);
-      });
-      return map;
-    }
-
-    function monthKey(dateStr) {
-      // Devuelve YYYY-MM para agrupar
-      const d = new Date(dateStr);
-      if (isNaN(d)) return "(Fecha inválida)";
-      const y = d.getUTCFullYear();
-      const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-      return `${y}-${m}`;
-    }
-
-    function countByMonth(arr, dateKey) {
-      const map = new Map();
-      arr.forEach(o => {
-        const k = monthKey(o[dateKey]);
-        map.set(k, (map.get(k) || 0) + 1);
-      });
-      // ordenar por clave (YYYY-MM)
-      return Array.from(map.entries()).sort(([a],[b]) => a.localeCompare(b));
-    }
-
-    function topN(map, n = 10) {
-      return Array.from(map.entries())
-                  .sort((a,b) => b[1]-a[1])
-                  .slice(0, n);
-    }
-
-    function setLog(msg) {
-      const box = document.getElementById("logBox");
-      const el = document.getElementById("logMsg");
-      if (!msg) { box.hidden = true; el.textContent=""; return; }
-      el.textContent = msg;
-      box.hidden = false;
-    }
-
-    function renderKPIs(records) {
-      const total = records.length;
-      const vig = records.filter(r => r.Estado === "VIGENTE").length;
-      const ven = records.filter(r => r.Estado === "VENCIDA").length;
-      const soon = records.filter(r => {
-        // pronto a vencer: dentro de 90 días
-        const d = new Date(r.FechaTermino);
-        if (isNaN(d)) return false;
-        const now = new Date();
-        const diffDays = Math.round((d - now) / (1000*60*60*24));
-        return diffDays >= 0 && diffDays <= 90;
-      }).length;
-
-      const KPIs = [
-        { label: "Vigentes", value: vig, color: COLOR_OK },
-        { label: "Vencidas", value: ven, color: COLOR_BAD },
-        { label: "Pronto a vencer (≤90d)", value: soon, color: COLOR_WARN },
-        { label: "Total", value: total, color: "#111827" }
-      ];
-
-      const wrap = document.getElementById("kpiCards");
-      wrap.innerHTML = KPIs.map(k => `
-        <div class="bg-white rounded-2xl p-4 shadow border border-gray-100">
-          <div class="text-sm text-gray-500">${k.label}</div>
-          <div class="mt-1 text-3xl font-semibold" style="color:${k.color}">${k.value}</div>
-        </div>
-      `).join("");
-    }
-
-    function destroyIf(chartRef) { if (chartRef) chartRef.destroy(); }
-
-    function renderCharts(records) {
-      // Estado
-      const estadoMap = countBy(records, "Estado");
-      const estadoLabels = Array.from(estadoMap.keys());
-      const estadoData = Array.from(estadoMap.values());
-      destroyIf(chartEstado);
-      chartEstado = new Chart(
-        document.getElementById("estadoPie"),
-        {
-          type: "pie",
-          data: {
-            labels: estadoLabels,
-            datasets: [{ data: estadoData }]
-          },
-          options: {
-            plugins: { legend: { position: "bottom" } }
-          }
-        }
-      );
-
-      // Certificado (Top 12)
-      const certTop = topN(countBy(records, "Certificado"), 12);
-      destroyIf(chartCert);
-      chartCert = new Chart(
-        document.getElementById("certBar"),
-        {
-          type: "bar",
-          data: {
-            labels: certTop.map(([k]) => k),
-            datasets: [{ label: "Cantidad", data: certTop.map(([,v]) => v) }]
-          },
-          options: {
-            indexAxis: "y",
-            plugins: { legend: { display: false } },
-            scales: { x: { beginAtZero: true } }
-          }
-        }
-      );
-
-      // Vicepresidencia
-      const vpMap = countBy(records, "Vicepresidencia");
-      destroyIf(chartVP);
-      chartVP = new Chart(
-        document.getElementById("vpBar"),
-        {
-          type: "bar",
-          data: {
-            labels: Array.from(vpMap.keys()),
-            datasets: [{ label: "Cantidad", data: Array.from(vpMap.values()) }]
-          },
-          options: {
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } }
-          }
-        }
-      );
-
-      // Vencimientos por mes (línea)
-      const validDates = records.filter(r => r.FechaTermino && !isNaN(new Date(r.FechaTermino)));
-      const byMonth = countByMonth(validDates, "FechaTermino");
-      destroyIf(chartVenci);
-      chartVenci = new Chart(
-        document.getElementById("venciLine"),
-        {
-          type: "line",
-          data: {
-            labels: byMonth.map(([k]) => k),
-            datasets: [{ label: "Vencimientos", data: byMonth.map(([,v]) => v), tension: 0.2 }]
-          },
-          options: {
-            plugins: { legend: { display: false } },
-            scales: {
-              y: { beginAtZero: true }
-            }
-          }
-        }
-      );
-    }
-
-    async function loadAndRender() {
-      setLog("");
-      try {
-        const res = await fetch(jsonUrl, { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        const rows = safeParseRecords(json).map(normalizeRow);
-
-        if (!rows.length) {
-          setLog("No se encontraron registros en el JSON. Verifica la estructura o la URL.");
-          return;
-        }
-
-        // Mostrar dashboard
-        document.getElementById("cover").classList.add("hidden");
-        document.getElementById("dash").classList.remove("hidden");
-
-        renderKPIs(rows);
-        renderCharts(rows);
-      } catch (err) {
-        console.error(err);
-        setLog("Error cargando el JSON. Revisa la URL pública o la estructura del archivo.");
       }
+      return Array.from(map, ([name, value]) => ({ name, value }));
+    };
+    const groupPct = (rows, keyFn, predFn) => {
+      const total = new Map(), hit = new Map();
+      for (const r of rows) {
+        const k = keyFn(r) ?? '—';
+        total.set(k, (total.get(k)||0)+1);
+        if (predFn(r)) hit.set(k, (hit.get(k)||0)+1);
+      }
+      return Array.from(total, ([name, t]) => {
+        const h = hit.get(name)||0;
+        return { name, pct: t ? +(h*100/t).toFixed(1) : 0 };
+      });
+    };
+
+    function Informe() {
+      const [raw, setRaw] = useState(null);
+      const [error, setError] = useState('');
+      const [vpFiltro, setVpFiltro] = useState('todas');
+      const [gerenciaFiltro, setGerenciaFiltro] = useState('todas');
+      const [supFiltro, setSupFiltro] = useState('todas');
+
+      // Auto-carga al iniciar (sin pantalla intermedia)
+      useEffect(() => {
+        (async () => {
+          try {
+            const res = await fetch(DATA_URL, {cache:'no-store'});
+            if (!res.ok) throw new Error('No se pudo descargar el JSON');
+            const data = await res.json();
+            setRaw(Array.isArray(data) ? data : []);
+          } catch (e) {
+            setError(e.message || 'Error cargando datos');
+          }
+        })();
+      }, []);
+
+      useEffect(()=>{ lucide.createIcons({attrs:{'stroke-width':2}}); });
+
+      // Canonización
+      const canon = useMemo(() => (raw||[]).map(r => ({
+        certificado: normU(getAny(r, ['Certificado','certificado','Nombre','nombre'])),
+        estado:      normL(getAny(r, ['estado','Estado'])),
+        vp:          norm(getAny(r, ['Vicepresidencia','vicepresidencia','VP','vp'])),
+        ger:         norm(getAny(r, ['Gerencia','gerencia'])),
+        sup:         norm(getAny(r, ['Superintendencia','superintendencia','Super','super'])),
+      })), [raw]);
+
+      // Universo válido
+      const universe = useMemo(() => canon.filter(r =>
+        CERTS_WHITELIST.has(r.certificado) &&
+        (r.estado === 'vigente' || r.estado === 'vencido')
+      ), [canon]);
+
+      // Filtros dinámicos
+      const vps = useMemo(() => Array.from(new Set(universe.map(r=>r.vp).filter(Boolean))), [universe]);
+      const gers = useMemo(() => Array.from(new Set(universe.map(r=>r.ger).filter(Boolean))), [universe]);
+      const sups = useMemo(() => Array.from(new Set(universe.map(r=>r.sup).filter(Boolean))), [universe]);
+
+      const filtered = useMemo(() => universe.filter(r =>
+        (vpFiltro==='todas' || r.vp===vpFiltro) &&
+        (gerenciaFiltro==='todas' || r.ger===gerenciaFiltro) &&
+        (supFiltro==='todas' || r.sup===supFiltro)
+      ), [universe, vpFiltro, gerenciaFiltro, supFiltro]);
+
+      // KPIs
+      const kpi = useMemo(() => {
+        const total = filtered.length;
+        const vig = filtered.filter(r=>r.estado==='vigente').length;
+        const ven = filtered.filter(r=>r.estado==='vencido').length;
+        const base = Math.max(1, vig+ven);
+        return { total, vig, ven, pctVig:+(vig*100/base).toFixed(1), pctVen:+(ven*100/base).toFixed(1) };
+      }, [filtered]);
+
+      // Data de gráficos
+      const dataVpStack = useMemo(() => {
+        const base = {};
+        for (const r of filtered) {
+          const k = r.vp || '—';
+          base[k] ??= { name:k, Vigentes:0, Vencidos:0 };
+          if (r.estado==='vigente') base[k].Vigentes++;
+          else base[k].Vencidos++;
+        }
+        return Object.values(base);
+      }, [filtered]);
+
+      const dataTopVencidosVP = useMemo(() => 
+        groupCount(filtered, r=>r.vp, r=>r.estado==='vencido')
+          .sort((a,b)=>b.value-a.value)
+          .slice(0,10)
+      , [filtered]);
+
+      const dataPctVencidosSup = useMemo(() => 
+        groupPct(filtered, r=>r.sup, r=>r.estado==='vencido').sort((a,b)=>b.pct-a.pct)
+      , [filtered]);
+
+      const dataPctVigentesSup = useMemo(() => 
+        groupPct(filtered, r=>r.sup, r=>r.estado==='vigente').sort((a,b)=>b.pct-a.pct)
+      , [filtered]);
+
+      const dataPctVencidosGer = useMemo(() => 
+        groupPct(filtered, r=>r.ger, r=>r.estado==='vencido').sort((a,b)=>b.pct-a.pct)
+      , [filtered]);
+
+      const dataPctVigentesGer = useMemo(() => 
+        groupPct(filtered, r=>r.ger, r=>r.estado==='vigente').sort((a,b)=>b.pct-a.pct)
+      , [filtered]);
+
+      if (error) {
+        return (
+          <div className="max-w-3xl mx-auto p-6">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              <strong>Error:</strong> {error}
+            </div>
+          </div>
+        );
+      }
+      if (!raw) {
+        return (
+          <div className="flex items-center justify-center h-[60vh] text-gray-600">
+            <i data-lucide="loader-2" class="w-6 h-6 mr-2 spin"></i> Cargando datos...
+          </div>
+        );
+      }
+
+      return (
+        <div className="max-w-7xl mx-auto p-6">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Informe de Certificaciones</h1>
+            <p className="text-gray-600">Datos cargados automáticamente desde GitHub Raw</p>
+          </div>
+
+          {/* KPIs */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-2">
+                <div className="p-3 bg-blue-100 rounded-lg text-blue-600">
+                  <i data-lucide="list-checks" className="w-5 h-5"></i>
+                </div>
+                <span className="text-2xl font-bold text-gray-800">{kpi.total}</span>
+              </div>
+              <h3 className="text-gray-600 text-sm font-medium">Registros considerados</h3>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-2">
+                <div className="p-3 bg-green-100 rounded-lg text-green-600">
+                  <i data-lucide="circle-check" className="w-5 h-5"></i>
+                </div>
+                <span className="text-2xl font-bold text-gray-800">{kpi.vig} ({kpi.pctVig}%)</span>
+              </div>
+              <h3 className="text-gray-600 text-sm font-medium">% Vigentes</h3>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-2">
+                <div className="p-3 bg-red-100 rounded-lg text-red-600">
+                  <i data-lucide="triangle-alert" className="w-5 h-5"></i>
+                </div>
+                <span className="text-2xl font-bold text-gray-800">{kpi.ven} ({kpi.pctVen}%)</span>
+              </div>
+              <h3 className="text-gray-600 text-sm font-medium">% Vencidos</h3>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-2">
+                <div className="p-3 bg-purple-100 rounded-lg text-purple-600">
+                  <i data-lucide="filter" className="w-5 h-5"></i>
+                </div>
+                <span className="text-2xl font-bold text-gray-800">
+                  {(vpFiltro!=='todas')+(gerenciaFiltro!=='todas')+(supFiltro!=='todas')} filtros
+                </span>
+              </div>
+              <h3 className="text-gray-600 text-sm font-medium">Filtros activos</h3>
+            </div>
+          </div>
+
+          {/* Filtros */}
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Vicepresidencia</label>
+                <select
+                  value={vpFiltro}
+                  onChange={e => { setVpFiltro(e.target.value); setGerenciaFiltro('todas'); setSupFiltro('todas'); }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="todas">Todas</option>
+                  {vps.map(v => <option key={v} value={v}>{v}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Gerencia</label>
+                <select
+                  value={gerenciaFiltro}
+                  onChange={e => { setGerenciaFiltro(e.target.value); setSupFiltro('todas'); }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="todas">Todas</option>
+                  {gers.map(g => <option key={g} value={g}>{g}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Superintendencia</label>
+                <select
+                  value={supFiltro}
+                  onChange={e => setSupFiltro(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="todas">Todas</option>
+                  {sups.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+
+              <div className="lg:col-span-3 flex items-end">
+                <button
+                  onClick={() => { setVpFiltro('todas'); setGerenciaFiltro('todas'); setSupFiltro('todas'); }}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex items-center gap-2"
+                >
+                  <i data-lucide="rotate-ccw" className="w-4 h-4"></i> Limpiar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Gráficos */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Vigentes vs Vencidos por Vicepresidencia</h3>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={dataVpStack}>
+                  <CartesianGrid strokeDasharray="3 3"/>
+                  <XAxis dataKey="name" fontSize={12}/>
+                  <YAxis allowDecimals={false}/>
+                  <Tooltip/>
+                  <Legend/>
+                  <Bar dataKey="Vigentes" stackId="a" fill="#10B981"/>
+                  <Bar dataKey="Vencidos" stackId="a" fill="#EF4444"/>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Top Vencidos por VP</h3>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={dataTopVencidosVP} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3"/>
+                  <XAxis type="number" allowDecimals={false}/>
+                  <YAxis dataKey="name" type="category" width={120} fontSize={12}/>
+                  <Tooltip/>
+                  <Bar dataKey="value" fill="#EF4444"/>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">% Vencidos por Superintendencia</h3>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={dataPctVencidosSup}>
+                  <CartesianGrid strokeDasharray="3 3"/>
+                  <XAxis dataKey="name" fontSize={12}/>
+                  <YAxis unit="%" domain={[0,100]}/>
+                  <Tooltip formatter={v=>`${v}%`}/>
+                  <Bar dataKey="pct" fill="#F59E0B"/>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">% Vigentes por Superintendencia</h3>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={dataPctVigentesSup}>
+                  <CartesianGrid strokeDasharray="3 3"/>
+                  <XAxis dataKey="name" fontSize={12}/>
+                  <YAxis unit="%" domain={[0,100]}/>
+                  <Tooltip formatter={v=>`${v}%`}/>
+                  <Bar dataKey="pct" fill="#10B981"/>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">% Vencidos por Gerencia</h3>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={dataPctVencidosGer}>
+                  <CartesianGrid strokeDasharray="3 3"/>
+                  <XAxis dataKey="name" fontSize={12}/>
+                  <YAxis unit="%" domain={[0,100]}/>
+                  <Tooltip formatter={v=>`${v}%`}/>
+                  <Bar dataKey="pct" fill="#F59E0B"/>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">% Vigentes por Gerencia</h3>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={dataPctVigentesGer}>
+                  <CartesianGrid strokeDasharray="3 3"/>
+                  <XAxis dataKey="name" fontSize={12}/>
+                  <YAxis unit="%" domain={[0,100]}/>
+                  <Tooltip formatter={v=>`${v}%`}/>
+                  <Bar dataKey="pct" fill="#10B981"/>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+          </div>
+        </div>
+      );
     }
 
-    // Botón abrir/cargar
-    document.getElementById("openBtn").addEventListener("click", loadAndRender);
-
-    // Render iconos Lucide
-    window.addEventListener("DOMContentLoaded", () => {
-      lucide.createIcons();
-    });
+    ReactDOM.createRoot(document.getElementById('root')).render(<Informe/>);
   </script>
 </body>
 </html>
