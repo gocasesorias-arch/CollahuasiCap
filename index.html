@@ -16,88 +16,29 @@
       --color-accent: #8ed973;
       --color-warning: #de990e;
     }
-    body {
-      background-color: #f5f5f5;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    .header-collahuasi {
-      background-color: var(--color-primary);
-      color: #fff;
-      padding: 2rem 0 1.5rem 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    .collahuasi-logo {
-      display: block;
-      margin: 0 auto 1.2rem auto;
-      max-width: 320px;
-      width: 100%;
-      height: auto;
-      border-radius: 20px;
-    }
-    .title-section {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .search-box {
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0, 0, 0, 0.06);
-    }
-    .cert-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 1rem;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-      border-left: 4px solid;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      margin-bottom: 1rem;
-      min-height: 100%;
-    }
-    .cert-card:hover {
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
-      transform: translateY(-2px);
-    }
+    body { background-color: #f5f5f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .header-collahuasi { background-color: var(--color-primary); color: #fff; padding: 2rem 0 1.5rem 0; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+    .collahuasi-logo { display:block; margin:0 auto 1.2rem; max-width:320px; width:100%; height:auto; border-radius:20px; }
+    .title-section { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .search-box { background:#fff; padding:1.5rem; border-radius:12px; box-shadow:0 2px 4px rgba(0,0,0,.08); border:1px solid rgba(0,0,0,.06); }
+    .cert-card { background:#fff; border-radius:12px; padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,.08); border-left:4px solid; transition:transform .2s, box-shadow .2s; margin-bottom:1rem; min-height:100%; }
+    .cert-card:hover { box-shadow:0 6px 18px rgba(0,0,0,.14); transform:translateY(-2px); }
     .cert-card.vigente { border-left-color: var(--color-accent); }
     .cert-card.vencido { border-left-color: var(--color-warning); }
-
-    .badge-vigente { background-color: #d4edda; color: #155724; }
-    .badge-vencido { background-color: #fff3cd; color: #856404; }
-
-    .status-badge {
-      background-color: #d4edda;
-      color: #155724;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .section-header { display: flex; align-items: center; gap: 1rem; margin: 2rem 0 1rem; }
-    .section-line { width: 4px; height: 32px; border-radius: 2px; }
-    .btn-download {
-      background-color: var(--color-secondary);
-      color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 8px;
-      font-size: 0.875rem; cursor: pointer; transition: opacity 0.2s ease;
-    }
-    .btn-download:hover { opacity: 0.9; }
-
-    .loading-spinner {
-      border: 4px solid #f3f3f3; border-top: 4px solid var(--color-secondary);
-      border-radius: 50%; width: 60px; height: 60px;
-      animation: spin 1s linear infinite; margin: 2rem auto;
-    }
-    @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
-
-    .empty-state { text-align: center; padding: 3rem 1rem; }
-    .empty-state i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
-
-    .kpi-pill { color:#fff; border-radius: 999px; padding: .35rem .75rem; font-weight:600; }
-    .kpi-pill.vig { background: #1f8a46; }
-    .kpi-pill.ven { background: #c98208; }
+    .badge-vigente { background:#d4edda; color:#155724; }
+    .badge-vencido { background:#fff3cd; color:#856404; }
+    .status-badge { background:#d4edda; color:#155724; padding:.5rem 1rem; border-radius:20px; display:inline-flex; align-items:center; gap:.5rem; }
+    .section-header { display:flex; align-items:center; gap:1rem; margin:2rem 0 1rem; }
+    .section-line { width:4px; height:32px; border-radius:2px; }
+    .btn-download { background:var(--color-secondary); color:#fff; border:none; padding:.5rem 1rem; border-radius:8px; font-size:.875rem; cursor:pointer; transition:opacity .2s; }
+    .btn-download:hover { opacity:.9; }
+    .loading-spinner { border:4px solid #f3f3f3; border-top:4px solid var(--color-secondary); border-radius:50%; width:60px; height:60px; animation:spin 1s linear infinite; margin:2rem auto; }
+    @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+    .empty-state { text-align:center; padding:3rem 1rem; }
+    .empty-state i { font-size:4rem; margin-bottom:1rem; opacity:.5; }
+    .kpi-pill { color:#fff; border-radius:999px; padding:.35rem .75rem; font-weight:600; }
+    .kpi-pill.vig { background:#1f8a46; }
+    .kpi-pill.ven { background:#c98208; }
   </style>
 </head>
 <body>
@@ -134,29 +75,28 @@
         <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--color-warning);"></i>
         <p class="text-dark mt-3 mb-1">Sistema sin datos cargados</p>
         <p class="text-muted small">Espere unos segundos mientras se cargan los datos automáticamente</p>
-        <a href="informe.html" class="position-absolute top-0 end-0 m-3" title="Ver gráficos">
-          <i class="fas fa-chart-line fa-2x text-white"></i>
-        </a>
       </div>
-      <a href="informe.html" class="position-absolute top-0 end-0 m-3" title="Ver gráficos">
-        <i class="fas fa-chart-line fa-2x text-white"></i>
-      </a>
     </div>
   </header>
 
   <!-- Main -->
   <main class="container my-4" role="main">
     <div id="kpis" class="d-flex gap-2 mb-3 flex-wrap" aria-live="polite"></div>
+
+    <!-- Botón PDF: parte oculto; se muestra solo con resultados -->
     <div id="exportContainer" class="d-flex justify-content-end mb-3" style="display:none;">
       <button id="btnExportPDF" class="btn" style="background-color: var(--color-warning); color: #fff;">
         <i class="fas fa-file-pdf me-1"></i> Exportar PDF
       </button>
     </div>
+
     <div id="loadingContainer" style="display:none;">
       <div class="loading-spinner" role="status" aria-label="Cargando"></div>
       <p class="text-center text-muted">Buscando certificaciones...</p>
     </div>
+
     <div id="resultsContainer" class="row g-3"></div>
+
     <div id="emptyResults" style="display:none;" class="empty-state">
       <i class="fas fa-search text-muted"></i>
       <h3 class="text-muted">Busque certificaciones por RUT</h3>
@@ -182,9 +122,11 @@
     </div>
   </div>
 
+  <!-- Libs -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
   <script>
     // ===== Config =====
     const jsonUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/tableConvert.com_jt1fa1.json";
@@ -253,6 +195,19 @@
     };
 
     // ===== Utils =====
+    const statusContainer = document.getElementById('statusContainer');
+    const searchContainer = document.getElementById('searchContainer');
+    const noDataMessage = document.getElementById('noDataMessage');
+    const emptyResults = document.getElementById('emptyResults');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const loadingContainer = document.getElementById('loadingContainer');
+    const kpis = document.getElementById('kpis');
+    const exportContainer = document.getElementById('exportContainer');
+
+    function toggleExport(show) {
+      exportContainer.style.display = show ? 'flex' : 'none';
+    }
+
     function formatRut(value) {
       const cleaned = (value || '').replace(/[^0-9kK]/g, '');
       if (!cleaned) return '';
@@ -265,16 +220,13 @@
       }
       return formatted + '-' + dv.toUpperCase();
     }
-
     function computeDv(rutDigits) {
-      // Modulo 11
       let M = 0, S = 1;
       for (; rutDigits; rutDigits = Math.floor(rutDigits / 10)) {
         S = (S + (rutDigits % 10) * (9 - (M++ % 6))) % 11;
       }
       return S ? String(S - 1) : 'K';
     }
-
     function isRutValid(rut) {
       const raw = (rut || '').replace(/\.|-/g, '').toUpperCase();
       if (raw.length < 2) return false;
@@ -283,17 +235,12 @@
       if (!/^\d+$/.test(body)) return false;
       return computeDv(parseInt(body, 10)) === dv;
     }
-
     function safeGet(obj, ...keys) {
       return keys.reduce((acc, k) => (acc && acc[k] !== undefined ? acc[k] : acc && acc[k.toLowerCase()] !== undefined ? acc[k.toLowerCase()] : undefined), obj);
     }
-
     function parseDate(value) {
       if (!value) return null;
-      const cand = [
-        'DD/MM/YYYY', 'D/M/YYYY', 'YYYY-MM-DD', 'DD-MM-YYYY',
-        'D-MM-YYYY', 'DD.MM.YYYY', 'YYYY/MM/DD'
-      ];
+      const cand = ['DD/MM/YYYY','D/M/YYYY','YYYY-MM-DD','DD-MM-YYYY','D-MM-YYYY','DD.MM.YYYY','YYYY/MM/DD'];
       for (const f of cand) {
         const d = dayjs(value, f, true);
         if (d.isValid()) return d;
@@ -301,9 +248,7 @@
       const d2 = dayjs(value);
       return d2.isValid() ? d2 : null;
     }
-
     function formatDate(d) { return d ? d.format('DD-MM-YYYY') : '—'; }
-
     function categorizarCertificado(nombre) {
       if (!nombre) return 'otros';
       const nU = String(nombre).toUpperCase();
@@ -311,20 +256,14 @@
       if (categorias.epf.some(ep => nU.includes(ep.toUpperCase()))) return 'epf';
       return 'otros';
     }
-
-    function debounce(fn, wait = 350) {
-      let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); };
+    function debounce(fn, wait = 350) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); }; }
+    function normalizeRut(rut) { return (rut || '').replace(/\.|-/g, '').toUpperCase().trim(); }
+    function getWorkerSummary(items) {
+      const first = items[0] || {};
+      const trabajador = first.Trabajador || first.trabajador || '—';
+      const pos = safeGet(first, 'Posición') || safeGet(first, 'Posicion') || '—';
+      return { trabajador, posicion: pos };
     }
-
-    // ===== UI state =====
-    const statusContainer = document.getElementById('statusContainer');
-    const searchContainer = document.getElementById('searchContainer');
-    const noDataMessage = document.getElementById('noDataMessage');
-    const emptyResults = document.getElementById('emptyResults');
-    const resultsContainer = document.getElementById('resultsContainer');
-    const loadingContainer = document.getElementById('loadingContainer');
-    const kpis = document.getElementById('kpis');
-
     function setStatusLoading() {
       statusContainer.innerHTML = `
         <div class="status-badge" style="background-color:#fff3cd;color:#856404;">
@@ -335,7 +274,6 @@
       noDataMessage.style.display = 'block';
       emptyResults.style.display = 'none';
     }
-
     function setStatusReady(total) {
       statusContainer.innerHTML = `
         <div class="status-badge">
@@ -345,10 +283,8 @@
         <div class="text-white-50 small text-end mt-1">${total} registros</div>`;
       searchContainer.style.display = 'block';
       noDataMessage.style.display = 'none';
-      // quitar placeholder
-      emptyResults.style.display = 'none';
+      emptyResults.style.display = 'block';
     }
-
     function setStatusError() {
       statusContainer.innerHTML = `
         <div class="status-badge" style="background-color:#f8d7da;color:#721c24;">
@@ -374,10 +310,8 @@
         throw e;
       }
     }
-
     async function loadData() {
       setStatusLoading();
-      // Try cache first
       try {
         const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
         if (cached && (Date.now() - cached.t) < CACHE_MS && Array.isArray(cached.data)) {
@@ -386,8 +320,7 @@
           setStatusReady(allData.length);
           return;
         }
-      } catch { /* ignore cache errors */ }
-
+      } catch {}
       try {
         const resp = await fetchWithTimeout(jsonUrl, { timeout: 20000 });
         if (!resp.ok) throw new Error('No se pudo descargar el archivo JSON');
@@ -403,34 +336,26 @@
       }
     }
 
-    // ===== Search =====
-    function normalizeRut(rut) { return (rut || '').replace(/\.|-/g, '').toUpperCase().trim(); }
-
-    function getWorkerSummary(items) {
-      const first = items[0] || {};
-      const trabajador = first.Trabajador || first.trabajador || '—';
-      const pos = safeGet(first, 'Posición') || safeGet(first, 'Posicion') || '—';
-      return { trabajador, posicion: pos };
-    }
-
+    // ===== KPIs =====
     function buildKpis(list) {
       if (!Array.isArray(list) || !list.length) {
         kpis.innerHTML = '';
-        document.getElementById('exportContainer').style.display = 'none';
+        toggleExport(false);
         return;
       }
       const totals = { vig: 0, ven: 0 };
-      for (const c of list) { totals[c.vigente ? 'vig' : 'ven']++; }
+      for (const c of list) totals[c.vigente ? 'vig' : 'ven']++;
       kpis.innerHTML = `
         <span class="kpi-pill vig"><i class="fa-solid fa-circle-check me-1"></i>Vigentes: ${totals.vig}</span>
         <span class="kpi-pill ven"><i class="fa-solid fa-triangle-exclamation me-1"></i>Vencidos: ${totals.ven}</span>`;
     }
 
+    // ===== Search =====
     function searchCertifications() {
+      toggleExport(false); // siempre oculto al iniciar la búsqueda
       const rutInput = document.getElementById('rutInput').value;
       if (rutInput.length < 9) return;
 
-      // Validate RUT
       if (!isRutValid(rutInput)) {
         resultsContainer.innerHTML = `
           <div class="empty-state">
@@ -439,15 +364,12 @@
             <p class="text-muted">Revise el formato y el dígito verificador.</p>
             <p class="text-muted small">Ejemplo: 12.345.678-9</p>
           </div>`;
-        // ocultar PDF y KPIs
-        document.getElementById('exportContainer').style.display = 'none';
         kpis.innerHTML = '';
         return;
       }
 
       loadingContainer.style.display = 'block';
       resultsContainer.innerHTML = '';
-      // no mostramos placeholder
       emptyResults.style.display = 'none';
 
       setTimeout(() => {
@@ -468,12 +390,10 @@
               <p class="text-muted small">RUT buscado: ${formatRut(cleanRut)}</p>
             </div>`;
           kpis.innerHTML = '';
-          // ocultar PDF si no hay datos
-          document.getElementById('exportContainer').style.display = 'none';
+          toggleExport(false);
           return;
         }
 
-        // Build normalized records
         const normalized = matches.map((cert) => {
           const categoria = categorizarCertificado(cert.Certificado || cert.certificado);
           const fi = parseDate(cert['Fecha Inicio Vigencia'] || cert.fecha_inicio_vigencia);
@@ -491,16 +411,14 @@
           };
         });
 
-        // Prepare PDF data
+        // Guardar para PDF y mostrar botón SOLO si hay filas
         lastPDFData = normalized;
         lastSearchedRut = formatRut(cleanRut);
         lastWorkerInfo = getWorkerSummary(matches);
-        document.getElementById('exportContainer').style.display = 'flex';
+        toggleExport(normalized.length > 0);
 
-        // KPIs
         buildKpis(normalized);
 
-        // Group by categoria and sort by vencimiento asc
         const groups = { equiposMoviles: [], epf: [], otros: [] };
         for (const n of normalized) groups[n.categoria].push(n);
         for (const key of Object.keys(groups)) {
@@ -510,7 +428,6 @@
             return at - bt;
           });
         }
-
         displayResults(groups);
       }, 300);
     }
@@ -665,29 +582,26 @@
       doc.save(`certificaciones_${nameSafe}_${dateStr}.pdf`);
     }
 
-    // ===== Event bindings =====
+    // ===== Bindings =====
     const debouncedInput = debounce((e) => { e.target.value = formatRut(e.target.value); }, 0);
     document.getElementById('rutInput').addEventListener('input', debouncedInput);
-
-    document.getElementById('rutInput').addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') { searchCertifications(); }
-    });
-
+    document.getElementById('rutInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchCertifications(); });
     document.getElementById('btnSearch').addEventListener('click', searchCertifications);
     document.getElementById('btnExportPDF').addEventListener('click', exportToPDF);
 
     // Init
     (async function init() {
+      toggleExport(false); // oculto de inicio
       await loadData();
       if (dataLoaded && allData.length > 0) {
         setStatusReady(allData.length);
+        toggleExport(false); // seguir oculto hasta que haya resultados
       }
-      // forzar oculto el botón PDF al inicio
-      document.getElementById('exportContainer').style.display = 'none';
     })();
   </script>
 </body>
 </html>
+
 
 
 
