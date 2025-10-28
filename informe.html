@@ -1,308 +1,301 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard de Certificados Médicos</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard de Certificaciones</title>
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Lucide (vanilla, para usar íconos vía data-lucide) -->
+  <!-- Lucide (iconos) -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- React + ReactDOM -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 
-  <!-- Babel para transpilar JSX en el navegador -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- Recharts UMD -->
-  <script src="https://unpkg.com/recharts@2.5.0/dist/Recharts.js"></script>
+  <style>
+    /* Estilo simple para contenedor y botón flotante */
+    .fab {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 50;
+    }
+  </style>
 </head>
-<body>
-  <div id="root"></div>
+<body class="bg-gray-50 text-gray-900">
+  <!-- Botón esquina superior izquierda -->
+  <button id="openBtn" class="fab rounded-full p-3 bg-emerald-700 hover:bg-emerald-800 shadow-lg text-white"
+          title="Abrir dashboard" aria-label="Abrir dashboard">
+    <i data-lucide="chart-bar"></i>
+  </button>
 
-  <script type="text/babel" data-presets="env,react">
-    const { useState, useMemo, useEffect } = React;
-    const { BarChart, Bar, PieChart, Pie, LineChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
+  <!-- Encabezado / portada inicial -->
+  <header id="cover"
+          class="min-h-[40vh] grid place-items-center text-center px-6">
+    <div>
+      <h1 class="text-3xl font-bold">Dashboard de Certificaciones</h1>
+      <p class="mt-2 text-gray-600">Haz clic en el botón con el icono de gráfico (arriba a la izquierda) para cargar datos.</p>
+      <p class="mt-1 text-xs text-gray-500">Fuente JSON pública (GitHub Raw).</p>
+    </div>
+  </header>
 
-    const DashboardCertificados = () => {
-      // Reemplaza/crea íconos Lucide en cada render
-      useEffect(() => {
-        // Opcional: puedes pasar attrs globales del trazo
-        lucide.createIcons({ attrs: { 'stroke-width': 2 } });
-      });
+  <!-- Contenido del dashboard -->
+  <main id="dash" class="max-w-7xl mx-auto px-4 pb-12 hidden">
+    <!-- KPIs -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="kpiCards">
+      <!-- Tarjetas se llenan por JS -->
+    </section>
 
-      // Datos de ejemplo
-      const [certificados] = useState([
-        { id:1, paciente:"Juan Pérez",  rut:"12.345.678-9", diagnostico:"Faringitis Aguda", dias:3,  fechaInicio:"2024-01-15", fechaFin:"2024-01-17", estado:"vigente", medico:"Dr. García", especialidad:"Medicina General" },
-        { id:2, paciente:"María González", rut:"23.456.789-0", diagnostico:"Lumbalgia",        dias:5,  fechaInicio:"2024-01-10", fechaFin:"2024-01-14", estado:"vencido", medico:"Dr. Rodríguez", especialidad:"Traumatología" },
-        { id:3, paciente:"Carlos Muñoz",   rut:"34.567.890-1", diagnostico:"Gripe",            dias:2,  fechaInicio:"2024-01-16", fechaFin:"2024-01-17", estado:"vigente", medico:"Dra. López", especialidad:"Medicina General" },
-        { id:4, paciente:"Ana Fernández",  rut:"45.678.901-2", diagnostico:"Tendinitis",       dias:7,  fechaInicio:"2024-01-08", fechaFin:"2024-01-14", estado:"vencido", medico:"Dr. Rodríguez", especialidad:"Traumatología" },
-        { id:5, paciente:"Pedro Silva",    rut:"56.789.012-3", diagnostico:"Bronquitis",       dias:4,  fechaInicio:"2024-01-14", fechaFin:"2024-01-17", estado:"vigente", medico:"Dra. Martínez", especialidad:"Medicina General" },
-        { id:6, paciente:"Laura Soto",     rut:"67.890.123-4", diagnostico:"Esguince",         dias:10, fechaInicio:"2024-01-05", fechaFin:"2024-01-14", estado:"vencido", medico:"Dr. Rodríguez", especialidad:"Traumatología" },
-        { id:7, paciente:"Diego Vargas",   rut:"78.901.234-5", diagnostico:"Gastroenteritis",  dias:3,  fechaInicio:"2024-01-15", fechaFin:"2024-01-17", estado:"vigente", medico:"Dr. García", especialidad:"Medicina General" },
-        { id:8, paciente:"Carmen Rojas",   rut:"89.012.345-6", diagnostico:"Migraña",          dias:1,  fechaInicio:"2024-01-17", fechaFin:"2024-01-17", estado:"vigente", medico:"Dra. López", especialidad:"Neurología" },
-        { id:9, paciente:"Roberto Díaz",   rut:"90.123.456-7", diagnostico:"Fractura Menor",   dias:14, fechaInicio:"2024-01-01", fechaFin:"2024-01-14", estado:"vencido", medico:"Dr. Rodríguez", especialidad:"Traumatología" },
-        { id:10,paciente:"Patricia Morales",rut:"01.234.567-8", diagnostico:"Faringitis",      dias:2,  fechaInicio:"2024-01-16", fechaFin:"2024-01-17", estado:"vigente", medico:"Dra. Martínez", especialidad:"Medicina General" }
-      ]);
+    <!-- Gráficos -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h2 class="font-semibold mb-2">Estado de certificaciones</h2>
+        <canvas id="estadoPie" height="220"></canvas>
+      </div>
 
-      const [filtroEstado, setFiltroEstado] = useState('todos');
-      const [filtroEspecialidad, setFiltroEspecialidad] = useState('todas');
-      const [busqueda, setBusqueda] = useState('');
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h2 class="font-semibold mb-2">Certificaciones por tipo</h2>
+        <canvas id="certBar" height="220"></canvas>
+      </div>
 
-      const stats = useMemo(() => {
-        const total = certificados.length;
-        const vigentes = certificados.filter(c => c.estado === 'vigente').length;
-        const vencidos = certificados.filter(c => c.estado === 'vencido').length;
-        const totalDias = certificados.reduce((sum, c) => sum + c.dias, 0);
-        return { total, vigentes, vencidos, promedioDias: (totalDias / total).toFixed(1) };
-      }, [certificados]);
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h2 class="font-semibold mb-2">Distribución por Vicepresidencia</h2>
+        <canvas id="vpBar" height="220"></canvas>
+      </div>
 
-      const datosPorDiagnostico = useMemo(() => {
-        const conteo = certificados.reduce((acc, c) => (acc[c.diagnostico] = (acc[c.diagnostico]||0)+1, acc), {});
-        return Object.entries(conteo).map(([name, value]) => ({ name, value }));
-      }, [certificados]);
+      <div class="bg-white rounded-2xl p-4 shadow">
+        <h2 class="font-semibold mb-2">Vencimientos por mes</h2>
+        <canvas id="venciLine" height="220"></canvas>
+      </div>
+    </section>
 
-      const datosPorEspecialidad = useMemo(() => {
-        const conteo = certificados.reduce((acc, c) => (acc[c.especialidad] = (acc[c.especialidad]||0)+1, acc), {});
-        return Object.entries(conteo).map(([name, value]) => ({ name, value }));
-      }, [certificados]);
+    <!-- Logs / errores -->
+    <section class="mt-6" id="logBox" hidden>
+      <div class="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3 text-sm" id="logMsg"></div>
+    </section>
+  </main>
 
-      const datosPorMedico = useMemo(() => {
-        const conteo = certificados.reduce((acc, c) => (acc[c.medico] = (acc[c.medico]||0)+1, acc), {});
-        return Object.entries(conteo).map(([name, certificados]) => ({ name, certificados }))
-                   .sort((a,b) => b.certificados - a.certificados);
-      }, [certificados]);
+  <script>
+    // -------- Config --------
+    const jsonUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/tableConvert.com_jt1fa1.json";
 
-      const tendenciaDias = useMemo(() => {
-        return certificados.map(c => ({ fecha: c.fechaInicio, dias: c.dias, paciente: c.paciente }))
-                           .sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
-      }, [certificados]);
+    // Colores corporativos sugeridos
+    const COLOR_OK = "#00563F";   // verde corporativo
+    const COLOR_WARN = "#E87722"; // naranja corporativo
+    const COLOR_BAD = "#C73E3A";  // rojo riesgo
 
-      const certificadosFiltrados = useMemo(() => {
-        return certificados.filter(c => {
-          const okEstado = (filtroEstado === 'todos') || c.estado === filtroEstado;
-          const okEsp   = (filtroEspecialidad === 'todas') || c.especialidad === filtroEspecialidad;
-          const q = busqueda.trim().toLowerCase();
-          const okQ = !q || c.paciente.toLowerCase().includes(q) || c.rut.includes(q) || c.diagnostico.toLowerCase().includes(q);
-          return okEstado && okEsp && okQ;
-        });
-      }, [certificados, filtroEstado, filtroEspecialidad, busqueda]);
+    // Charts refs para poder destruirlos al re-render
+    let chartEstado, chartCert, chartVP, chartVenci;
 
-      const especialidades = useMemo(() => [...new Set(certificados.map(c => c.especialidad))], [certificados]);
-      const COLORS = ['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899','#14B8A6','#F97316'];
+    // Helpers ----------
+    const by = (k) => (a,b) => (a[k] > b[k]) ? 1 : (a[k] < b[k]) ? -1 : 0;
 
-      const exportarDatos = () => {
-        const rows = [
-          ['ID','Paciente','RUT','Diagnóstico','Días','Fecha Inicio','Fecha Fin','Estado','Médico','Especialidad'],
-          ...certificadosFiltrados.map(c => [c.id,c.paciente,c.rut,c.diagnostico,c.dias,c.fechaInicio,c.fechaFin,c.estado,c.medico,c.especialidad])
-        ];
-        const csv = rows.map(r => r.join(',')).join('\n');
-        const blob = new Blob([csv], { type:'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = 'certificados.csv'; a.click();
-        URL.revokeObjectURL(url);
+    function safeParseRecords(json) {
+      // Soporta {records:[...]} o directamente [...]
+      if (Array.isArray(json)) return json;
+      if (json && Array.isArray(json.records)) return json.records;
+      // A veces tableconvert trae {data:{...}} u otra envoltura
+      if (json && json.data && Array.isArray(json.data)) return json.data;
+      return [];
+    }
+
+    function normalizeRow(row) {
+      // Normaliza claves esperadas desde tu dataset original
+      return {
+        Estado: (row["Estado"] || row["estado"] || "").toString().trim().toUpperCase(),
+        Certificado: (row["Certificado"] || row["certificado"] || "").toString().trim(),
+        Vicepresidencia: (row["Vicepresidencia"] || row["vicepresidencia"] || "").toString().trim(),
+        Gerencia: (row["Gerencia"] || row["gerencia"] || "").toString().trim(),
+        FechaTermino: (row["Fecha Termino Vigencia"] || row["Fecha termino vigencia"] || row["fecha_termino_vigencia"] || row["FechaTermino"] || "").toString().trim()
       };
+    }
 
-      return (
-        <div className="min-h-screen bg-gray-50 p-6">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard de Certificados Médicos</h1>
-            <p className="text-gray-600">Sistema de gestión y análisis de licencias médicas</p>
-          </div>
+    function countBy(arr, key) {
+      const map = new Map();
+      arr.forEach(o => {
+        const k = (o[key] ?? "").toString().trim() || "(Sin dato)";
+        map.set(k, (map.get(k) || 0) + 1);
+      });
+      return map;
+    }
 
-          {/* Tarjetas */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-blue-100 rounded-lg text-blue-600">
-                  <i data-lucide="users" class="w-5 h-5"></i>
-                </div>
-                <span className="text-2xl font-bold text-gray-800">{stats.total}</span>
-              </div>
-              <h3 className="text-gray-600 text-sm font-medium">Total Certificados</h3>
-            </div>
+    function monthKey(dateStr) {
+      // Devuelve YYYY-MM para agrupar
+      const d = new Date(dateStr);
+      if (isNaN(d)) return "(Fecha inválida)";
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+      return `${y}-${m}`;
+    }
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-green-100 rounded-lg text-green-600">
-                  <i data-lucide="circle-check" class="w-5 h-5"></i>
-                </div>
-                <span className="text-2xl font-bold text-gray-800">{stats.vigentes}</span>
-              </div>
-              <h3 className="text-gray-600 text-sm font-medium">Certificados Vigentes</h3>
-            </div>
+    function countByMonth(arr, dateKey) {
+      const map = new Map();
+      arr.forEach(o => {
+        const k = monthKey(o[dateKey]);
+        map.set(k, (map.get(k) || 0) + 1);
+      });
+      // ordenar por clave (YYYY-MM)
+      return Array.from(map.entries()).sort(([a],[b]) => a.localeCompare(b));
+    }
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-red-100 rounded-lg text-red-600">
-                  <i data-lucide="triangle-alert" class="w-5 h-5"></i>
-                </div>
-                <span className="text-2xl font-bold text-gray-800">{stats.vencidos}</span>
-              </div>
-              <h3 className="text-gray-600 text-sm font-medium">Certificados Vencidos</h3>
-            </div>
+    function topN(map, n = 10) {
+      return Array.from(map.entries())
+                  .sort((a,b) => b[1]-a[1])
+                  .slice(0, n);
+    }
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-purple-100 rounded-lg text-purple-600">
-                  <i data-lucide="clock" class="w-5 h-5"></i>
-                </div>
-                <span className="text-2xl font-bold text-gray-800">{stats.promedioDias}</span>
-              </div>
-              <h3 className="text-gray-600 text-sm font-medium">Promedio de Días</h3>
-            </div>
-          </div>
+    function setLog(msg) {
+      const box = document.getElementById("logBox");
+      const el = document.getElementById("logMsg");
+      if (!msg) { box.hidden = true; el.textContent=""; return; }
+      el.textContent = msg;
+      box.hidden = false;
+    }
 
-          {/* Gráficos */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Certificados por Diagnóstico</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={datosPorDiagnostico}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} fontSize={12}/>
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#3B82F6" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+    function renderKPIs(records) {
+      const total = records.length;
+      const vig = records.filter(r => r.Estado === "VIGENTE").length;
+      const ven = records.filter(r => r.Estado === "VENCIDA").length;
+      const soon = records.filter(r => {
+        // pronto a vencer: dentro de 90 días
+        const d = new Date(r.FechaTermino);
+        if (isNaN(d)) return false;
+        const now = new Date();
+        const diffDays = Math.round((d - now) / (1000*60*60*24));
+        return diffDays >= 0 && diffDays <= 90;
+      }).length;
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Distribución por Especialidad</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie data={datosPorEspecialidad} cx="50%" cy="50%" labelLine={false}
-                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                       outerRadius={80} dataKey="value">
-                    {datosPorEspecialidad.map((entry, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+      const KPIs = [
+        { label: "Vigentes", value: vig, color: COLOR_OK },
+        { label: "Vencidas", value: ven, color: COLOR_BAD },
+        { label: "Pronto a vencer (≤90d)", value: soon, color: COLOR_WARN },
+        { label: "Total", value: total, color: "#111827" }
+      ];
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Certificados por Médico</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={datosPorMedico} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" width={100} fontSize={12}/>
-                  <Tooltip />
-                  <Bar dataKey="certificados" fill="#10B981" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Tendencia de Días de Licencia</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={tendenciaDias}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="fecha" fontSize={12}/>
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="dias" stroke="#8B5CF6" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Filtros */}
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <i data-lucide="sliders-horizontal" class="inline w-4 h-4 mr-2 align-[-2px]"></i> Estado
-                </label>
-                <select value={filtroEstado} onChange={e=>setFiltroEstado(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="todos">Todos</option>
-                  <option value="vigente">Vigentes</option>
-                  <option value="vencido">Vencidos</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Especialidad</label>
-                <select value={filtroEspecialidad} onChange={e=>setFiltroEspecialidad(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="todas">Todas</option>
-                  {especialidades.map(esp => <option key={esp} value={esp}>{esp}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Búsqueda</label>
-                <input type="text" value={busqueda} onChange={e=>setBusqueda(e.target.value)}
-                       placeholder="Paciente, RUT o diagnóstico..."
-                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-              </div>
-              <div className="flex items-end gap-2">
-                <button onClick={()=>{setFiltroEstado('todos');setFiltroEspecialidad('todas');setBusqueda('');}}
-                        className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex items-center justify-center gap-2">
-                  <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Limpiar
-                </button>
-                <button onClick={exportarDatos}
-                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
-                  <i data-lucide="download" class="w-4 h-4"></i> Exportar
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Tabla */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-800">Lista de Certificados ({certificadosFiltrados.length})</h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paciente</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RUT</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diagnóstico</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Días</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Período</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Médico</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Especialidad</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {certificadosFiltrados.map(c => (
-                    <tr key={c.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{c.paciente}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{c.rut}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{c.diagnostico}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{c.dias}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{c.fechaInicio} - {c.fechaFin}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{c.medico}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{c.especialidad}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${c.estado==='vigente' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                          {c.estado==='vigente' ? 'Vigente' : 'Vencido'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+      const wrap = document.getElementById("kpiCards");
+      wrap.innerHTML = KPIs.map(k => `
+        <div class="bg-white rounded-2xl p-4 shadow border border-gray-100">
+          <div class="text-sm text-gray-500">${k.label}</div>
+          <div class="mt-1 text-3xl font-semibold" style="color:${k.color}">${k.value}</div>
         </div>
-      );
-    };
+      `).join("");
+    }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<DashboardCertificados />);
+    function destroyIf(chartRef) { if (chartRef) chartRef.destroy(); }
+
+    function renderCharts(records) {
+      // Estado
+      const estadoMap = countBy(records, "Estado");
+      const estadoLabels = Array.from(estadoMap.keys());
+      const estadoData = Array.from(estadoMap.values());
+      destroyIf(chartEstado);
+      chartEstado = new Chart(
+        document.getElementById("estadoPie"),
+        {
+          type: "pie",
+          data: {
+            labels: estadoLabels,
+            datasets: [{ data: estadoData }]
+          },
+          options: {
+            plugins: { legend: { position: "bottom" } }
+          }
+        }
+      );
+
+      // Certificado (Top 12)
+      const certTop = topN(countBy(records, "Certificado"), 12);
+      destroyIf(chartCert);
+      chartCert = new Chart(
+        document.getElementById("certBar"),
+        {
+          type: "bar",
+          data: {
+            labels: certTop.map(([k]) => k),
+            datasets: [{ label: "Cantidad", data: certTop.map(([,v]) => v) }]
+          },
+          options: {
+            indexAxis: "y",
+            plugins: { legend: { display: false } },
+            scales: { x: { beginAtZero: true } }
+          }
+        }
+      );
+
+      // Vicepresidencia
+      const vpMap = countBy(records, "Vicepresidencia");
+      destroyIf(chartVP);
+      chartVP = new Chart(
+        document.getElementById("vpBar"),
+        {
+          type: "bar",
+          data: {
+            labels: Array.from(vpMap.keys()),
+            datasets: [{ label: "Cantidad", data: Array.from(vpMap.values()) }]
+          },
+          options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+          }
+        }
+      );
+
+      // Vencimientos por mes (línea)
+      const validDates = records.filter(r => r.FechaTermino && !isNaN(new Date(r.FechaTermino)));
+      const byMonth = countByMonth(validDates, "FechaTermino");
+      destroyIf(chartVenci);
+      chartVenci = new Chart(
+        document.getElementById("venciLine"),
+        {
+          type: "line",
+          data: {
+            labels: byMonth.map(([k]) => k),
+            datasets: [{ label: "Vencimientos", data: byMonth.map(([,v]) => v), tension: 0.2 }]
+          },
+          options: {
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true }
+            }
+          }
+        }
+      );
+    }
+
+    async function loadAndRender() {
+      setLog("");
+      try {
+        const res = await fetch(jsonUrl, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const rows = safeParseRecords(json).map(normalizeRow);
+
+        if (!rows.length) {
+          setLog("No se encontraron registros en el JSON. Verifica la estructura o la URL.");
+          return;
+        }
+
+        // Mostrar dashboard
+        document.getElementById("cover").classList.add("hidden");
+        document.getElementById("dash").classList.remove("hidden");
+
+        renderKPIs(rows);
+        renderCharts(rows);
+      } catch (err) {
+        console.error(err);
+        setLog("Error cargando el JSON. Revisa la URL pública o la estructura del archivo.");
+      }
+    }
+
+    // Botón abrir/cargar
+    document.getElementById("openBtn").addEventListener("click", loadAndRender);
+
+    // Render iconos Lucide
+    window.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+    });
   </script>
 </body>
 </html>
