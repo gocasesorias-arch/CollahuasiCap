@@ -117,6 +117,13 @@
         })();
       }, []);
 
+      // Inicializar iconos Lucide después de cada render
+      useEffect(() => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      });
+
       const canon = useMemo(() => (raw||[]).map(r => ({
         certificado: normU(getAny(r, ['Certificado','certificado','Nombre','nombre'])),
         estado:      normL(getAny(r, ['estado','Estado'])),
@@ -157,8 +164,8 @@
 
       if(error){
         return (
-          <div class="flex justify-center items-center h-screen">
-            <div class="bg-red-200 text-red-800 px-6 py-3 rounded-lg text-lg">
+          <div className="flex justify-center items-center h-screen">
+            <div className="bg-red-200 text-red-800 px-6 py-3 rounded-lg text-lg">
               ❌ {error}
             </div>
           </div>
@@ -167,28 +174,101 @@
 
       if(!raw){
         return (
-          <div class="flex justify-center items-center h-screen text-gray-600">
-            <i data-lucide="loader-2" class="w-6 h-6 mr-2 spin"></i>
+          <div className="flex justify-center items-center h-screen text-gray-600">
+            <i data-lucide="loader-2" className="w-6 h-6 mr-2 spin"></i>
             Cargando datos...
           </div>
         );
       }
 
       return (
-        <div class="max-w-7xl mx-auto p-6">
-          <h1 class="text-3xl font-bold mb-8">Informe de Certificaciones</h1>
+        <div className="max-w-7xl mx-auto p-6">
+          <h1 className="text-3xl font-bold mb-8">Informe de Certificaciones</h1>
+
+          {/* FILTROS */}
+          <div className="bg-white shadow rounded p-5 mb-6">
+            <h2 className="font-semibold mb-4 text-lg">Filtros</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Vicepresidencia</label>
+                <select
+                  value={vpFiltro}
+                  onChange={(e) => setVpFiltro(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="todas">Todas</option>
+                  {vps.sort().map(vp => <option key={vp} value={vp}>{vp}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Gerencia</label>
+                <select
+                  value={gerenciaFiltro}
+                  onChange={(e) => setGerenciaFiltro(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="todas">Todas</option>
+                  {gers.sort().map(g => <option key={g} value={g}>{g}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Superintendencia</label>
+                <select
+                  value={supFiltro}
+                  onChange={(e) => setSupFiltro(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="todas">Todas</option>
+                  {sups.sort().map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+
+            </div>
+            {(vpFiltro !== 'todas' || gerenciaFiltro !== 'todas' || supFiltro !== 'todas') && (
+              <button
+                onClick={() => { setVpFiltro('todas'); setGerenciaFiltro('todas'); setSupFiltro('todas'); }}
+                className="mt-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium"
+              >
+                Limpiar filtros
+              </button>
+            )}
+          </div>
 
           {/* CARD KPIs */}
-          <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white shadow rounded p-5">Total: {kpi.total}</div>
-            <div class="bg-white shadow rounded p-5">Vigentes: {kpi.vig} ({kpi.pctVig}%)</div>
-            <div class="bg-white shadow rounded p-5">Vencidas: {kpi.ven} ({kpi.pctVen}%)</div>
-            <div class="bg-white shadow rounded p-5">Filtros: {(vpFiltro!=='todas')+(gerenciaFiltro!=='todas')+(supFiltro!=='todas')}</div>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white shadow rounded p-5 border-l-4 border-blue-500">
+              <div className="text-sm text-gray-600 mb-1">Total</div>
+              <div className="text-3xl font-bold">{kpi.total}</div>
+            </div>
+            <div className="bg-white shadow rounded p-5 border-l-4 border-green-500">
+              <div className="text-sm text-gray-600 mb-1">Vigentes</div>
+              <div className="text-3xl font-bold text-green-600">{kpi.vig}</div>
+              <div className="text-sm text-gray-500">{kpi.pctVig}%</div>
+            </div>
+            <div className="bg-white shadow rounded p-5 border-l-4 border-red-500">
+              <div className="text-sm text-gray-600 mb-1">Vencidas</div>
+              <div className="text-3xl font-bold text-red-600">{kpi.ven}</div>
+              <div className="text-sm text-gray-500">{kpi.pctVen}%</div>
+            </div>
+            <div className="bg-white shadow rounded p-5 border-l-4 border-purple-500">
+              <div className="text-sm text-gray-600 mb-1">Filtros Activos</div>
+              <div className="text-3xl font-bold">
+                {[vpFiltro !== 'todas', gerenciaFiltro !== 'todas', supFiltro !== 'todas'].filter(Boolean).length}
+              </div>
+            </div>
           </div>
 
           {/* GRÁFICO BASE */}
-          <div class="bg-white shadow rounded p-5">
-            <h2 class="font-semibold mb-3">Vigentes vs Vencidos por VP</h2>
+          {filtered.length === 0 ? (
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-6 py-4 rounded-lg">
+              ⚠️ No hay datos que mostrar con los filtros seleccionados.
+            </div>
+          ) : (
+            <div className="bg-white shadow rounded p-5">
+              <h2 className="font-semibold mb-3 text-lg">Vigentes vs Vencidos por VP</h2>
 
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={dataVpStack}>
@@ -201,7 +281,8 @@
                 <Bar dataKey="Vencidos" fill="#EF4444"/>
               </BarChart>
             </ResponsiveContainer>
-          </div>
+            </div>
+          )}
         </div>
       );
     }
