@@ -21,6 +21,13 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
+    /* Fix para advertencia de text-size-adjust */
+    :host,
+    html {
+      text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
+
     .spin { animation: spin 1s linear infinite }
     @keyframes spin { from {transform:rotate(0)} to {transform:rotate(360deg)} }
   </style>
