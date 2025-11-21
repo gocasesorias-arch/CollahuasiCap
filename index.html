@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Certificaciones Collahuasi</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
     <style>
         :root {
             --color-primary: #275317;
@@ -60,15 +62,13 @@
             border-left-color: var(--color-accent);
         }
         .cert-card.vencido {
-    border-left-color: #ff8800;
-    background-color: #fff1d6;
+            border-left-color: #ff8800;
+            background-color: #fff1d6;
         }
-
         .badge-vigente {
             background-color: #d4edda;
             color: #155724;
         }
-
         .badge-vencido {
             background-color: #ff8800;
             color: #fff;
@@ -106,6 +106,20 @@
         .btn-download:hover {
             opacity: 0.9;
         }
+        .btn-pdf {
+            background-color: #b02a37; /* rojo sobrio para PDF */
+            color: white;
+            border: none;
+            padding: 0.45rem 0.9rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-pdf:hover { opacity: 0.92; }
+
         .modal-step {
             display: flex;
             gap: 1rem;
@@ -151,7 +165,6 @@
     <!-- Header -->
     <div class="header-collahuasi">
         <div class="container">
-            <!-- Logo Collahuasi arriba -->
             <img src="https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/LOGO2.0.png" alt="Collahuasi" class="collahuasi-logo">
             <div class="title-section">
                 <i class="fas fa-hard-hat" style="font-size: 3rem; color: var(--color-warning);"></i>
@@ -161,6 +174,7 @@
                 </div>
                 <div id="statusContainer"></div>
             </div>
+
             <div id="searchContainer" class="search-box mt-4" style="display: none;">
                 <div class="row g-2">
                     <div class="col-md-10">
@@ -174,6 +188,7 @@
                     </div>
                 </div>
             </div>
+
             <div id="noDataMessage" class="search-box mt-4 text-center">
                 <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--color-warning);"></i>
                 <p class="text-dark mt-3 mb-1">Sistema sin datos cargados</p>
@@ -181,19 +196,23 @@
             </div>
         </div>
     </div>
+
     <!-- Results Container -->
     <div class="container my-4">
         <div id="loadingContainer" style="display: none;">
             <div class="loading-spinner"></div>
             <p class="text-center text-muted">Buscando certificaciones...</p>
         </div>
+
         <div id="resultsContainer"></div>
+
         <div id="emptyResults" style="display: none;" class="empty-state">
             <i class="fas fa-search text-muted"></i>
             <h3 class="text-muted">Busque certificaciones por RUT</h3>
             <p class="text-muted">Ingrese el RUT del trabajador para ver sus certificaciones</p>
         </div>
     </div>
+
     <!-- Guide Modal -->
     <div class="modal fade" id="guideModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -211,14 +230,26 @@
             </div>
         </div>
     </div>
+
+    <!-- Dependencias -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jsPDF + AutoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
     <script>
         // URL del archivo JSON en GitHub
         const jsonUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/tableConvert.com_jt1fa1.json";
         let allData = [];
         let dataLoaded = false;
 
-        // Categorías
+        // RUTA LOCAL DEL LOGO (EN EL CONTENEDOR). 
+        // => Usar EXACTAMENTE la ruta que subiste: /mnt/data/18dba182-1812-4abe-b0a2-ec4ea591473e.png
+        // (el entorno de ejecución transformará esta ruta a una URL accesible)
+        const localLogoPath = "/mnt/data/18dba182-1812-4abe-b0a2-ec4ea591473e.png";
+
+        // Categorías (sin cambios funcionales)
         const categorias = {
             equiposMoviles: [
                 "Grúas móviles tipo AT", "Operador Rigger", "OPERAR CAMIÓN PLUMA",
@@ -231,11 +262,9 @@
                 "TÉCNICAS Y MANIOBRAS DE IZAJE Y LEVANTE (RIGGER)",
                 "TÉCNICAS Y MANIOBRAS DE IZAJE Y LEVANTE EPF 7 (RIGGER)",
                 "PROTECCIÓN CONTRA CAÍDAS EPF#6 PARA SPS"
-
             ]
         };
 
-        // Guías de descarga
         const guides = {
             equiposMoviles: {
                 title: "Guía de Descarga - Equipos Móviles",
@@ -275,7 +304,7 @@
             }
         };
 
-        // Formatear RUT
+        // Formatear RUT (sin cambios)
         function formatRut(value) {
             const cleaned = value.replace(/[^0-9kK]/g, '');
             if (cleaned.length <= 1) return cleaned;
@@ -289,7 +318,6 @@
             return formatted + '-' + dv;
         }
 
-        // Categorizar certificado
         function categorizarCertificado(nombre) {
             if (!nombre) return 'otros';
             const nombreUpper = nombre.toUpperCase();
@@ -302,7 +330,6 @@
             return 'otros';
         }
 
-        // Actualizar UI según estado
         function updateUI() {
             const statusContainer = document.getElementById('statusContainer');
             const searchContainer = document.getElementById('searchContainer');
@@ -333,7 +360,7 @@
             }
         }
 
-        // Cargar datos automáticamente desde el JSON en GitHub
+        // Cargar JSON
         async function autoLoadJSON() {
             try {
                 const response = await fetch(jsonUrl);
@@ -353,22 +380,15 @@
             }
         }
 
-        // Llama a la función al cargar la página
         autoLoadJSON();
 
-        // Formatear input de RUT
+        // Eventos
         document.getElementById('rutInput').addEventListener('input', function(e) {
             e.target.value = formatRut(e.target.value);
         });
-
-        // Buscar al presionar Enter
         document.getElementById('rutInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchCertifications();
-            }
+            if (e.key === 'Enter') searchCertifications();
         });
-
-        // Buscar certificaciones
         document.getElementById('btnSearch').addEventListener('click', searchCertifications);
 
         function searchCertifications() {
@@ -424,9 +444,10 @@
                 });
 
                 displayResults(categorized);
-            }, 500);
+            }, 400);
         }
 
+        // Mostrar resultados y botón PDF (debajo de Datos del Trabajador)
         function displayResults(categorized) {
             const resultsContainer = document.getElementById('resultsContainer');
             let html = '';
@@ -439,6 +460,13 @@
                         <h4 style="color: var(--color-primary);">Datos del Trabajador</h4>
                         <p class="mb-1"><strong>Nombre:</strong> ${firstCert.trabajador}</p>
                         <p class="mb-0"><strong>Posición:</strong> ${firstCert.posicion}</p>
+
+                        <!-- BOTÓN PDF (Opc 1: Debajo de Datos del Trabajador) -->
+                        <div class="mt-3">
+                            <button class="btn-pdf" onclick="generarPDF()">
+                                <i class="fas fa-file-pdf"></i> Descargar Certificado Profesional PDF
+                            </button>
+                        </div>
                     </div>
                 `;
             }
@@ -544,7 +572,164 @@
             modal.show();
         }
 
-        // Inicializar UI
+        /* -------------------------
+           FUNCIONES PDF (jsPDF + autotable)
+           ------------------------- */
+
+        // Convierte una ruta (local) a dataURL cargando la imagen con fetch -> blob -> base64
+        async function imageUrlToDataUrl(url) {
+            try {
+                const resp = await fetch(url);
+                const blob = await resp.blob();
+                return await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result.toString());
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            } catch (e) {
+                console.error("No se pudo cargar la imagen:", url, e);
+                return null;
+            }
+        }
+
+        async function generarPDF() {
+            // Obtener jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF("p", "pt", "letter");
+
+            // Cargar logo desde la ruta local (el entorno servirá la ruta)
+            const logoData = await imageUrlToDataUrl(localLogoPath);
+
+            // Encabezado - barra verde y logo
+            doc.setFillColor(39, 83, 23);
+            doc.rect(0, 0, doc.internal.pageSize.getWidth(), 80, "F");
+
+            if (logoData) {
+                // agrega logo en el header
+                doc.addImage(logoData, "PNG", 30, 14, 140, 50);
+            }
+
+            // Título sobre el encabezado (texto blanco)
+            doc.setFontSize(18);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(255, 255, 255);
+            doc.text("Certificado de Competencias y Capacitación", 200, 48);
+
+            // Extraer datos del DOM (nombre y posición desde la tarjeta)
+            const workerCard = document.querySelector("#resultsContainer .cert-card");
+            let trabajador = "Sin Nombre";
+            let posicion = "";
+            if (workerCard) {
+                const nombreElem = workerCard.querySelector("p strong");
+                if (nombreElem && nombreElem.parentNode) {
+                    // el texto después del <strong>Nombre:</strong>
+                    const full = workerCard.querySelector("p").textContent || "";
+                    // split para obtener el valor luego de "Nombre:"
+                    trabajador = full.replace("Nombre:", "").trim();
+                }
+                const posElem = workerCard.querySelectorAll("p")[1];
+                if (posElem) posicion = posElem.textContent.replace("Posición:", "").trim();
+            }
+
+            // Info trabajador en PDF
+            doc.setDrawColor(0);
+            doc.setFontSize(11);
+            doc.setTextColor(0,0,0);
+            doc.text(`Trabajador: ${trabajador}`, 40, 110);
+            if (posicion) doc.text(`Posición: ${posicion}`, 40, 126);
+
+            // Recolectar certificaciones visibles en pantalla
+            const certRows = [];
+            document.querySelectorAll("#resultsContainer .cert-card").forEach(card => {
+                // ignorar la tarjeta de datos del trabajador (tiene h4)
+                if (card.querySelector("h4")) return;
+                const nombre = card.querySelector("h6") ? card.querySelector("h6").innerText.trim() : "";
+                const parrafos = card.querySelectorAll(".small p, .small");
+                // fallback: usamos selectores concretos
+                const inicio = card.querySelector(".small p:nth-child(1)") ? card.querySelector(".small p:nth-child(1)").innerText.replace("Inicio:", "").trim() : (card.querySelector("p.mb-1") ? card.querySelector("p.mb-1").innerText.replace("Inicio:", "").trim() : "");
+                const venc = card.querySelector(".small p:nth-child(2)") ? card.querySelector(".small p:nth-child(2)").innerText.replace("Vencimiento:", "").trim() : "";
+                const otec = card.querySelector(".small p:nth-child(3)") ? card.querySelector(".small p:nth-child(3)").innerText.replace("OTEC:", "").trim() : "";
+                const estado = card.querySelector(".badge") ? card.querySelector(".badge").innerText.trim() : "";
+                if (nombre) certRows.push([nombre, inicio, venc, otec, estado]);
+            });
+
+            // Si no hay rows por el selector anterior (por seguridad), parsear con otro método
+            if (certRows.length === 0) {
+                document.querySelectorAll("#resultsContainer .col-md-4").forEach(col => {
+                    const card = col.querySelector(".cert-card");
+                    if (!card || card.querySelector("h4")) return;
+                    const nombre = card.querySelector("h6") ? card.querySelector("h6").innerText.trim() : "";
+                    const inicio = card.querySelector("p.mb-1") ? card.querySelector("p.mb-1").innerText.replace("Inicio:", "").trim() : "";
+                    const venc = card.querySelector("p.mb-1:nth-of-type(2)") ? card.querySelector("p.mb-1:nth-of-type(2)").innerText.replace("Vencimiento:", "").trim() : "";
+                    const otec = card.querySelector("p.mb-0") ? card.querySelector("p.mb-0").innerText.replace("OTEC:", "").trim() : "";
+                    const estado = card.querySelector(".badge") ? card.querySelector(".badge").innerText.trim() : "";
+                    if (nombre) certRows.push([nombre, inicio, venc, otec, estado]);
+                });
+            }
+
+            // Tabla con autotable
+            doc.autoTable({
+                startY: 150,
+                head: [["Certificación", "Inicio", "Vencimiento", "OTEC", "Estado"]],
+                body: certRows,
+                styles: { fontSize: 10, cellPadding: 6 },
+                headStyles: { fillColor: [39, 83, 23], textColor: [255,255,255], halign: 'left' },
+                alternateRowStyles: { fillColor: [245,245,245] },
+                margin: { left: 40, right: 40 }
+            });
+
+            // Fecha de emisión
+            const hoy = new Date().toLocaleDateString("es-CL");
+            const afterTableY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : 300;
+            doc.setFontSize(11);
+            doc.setTextColor(0,0,0);
+            doc.text(`Emitido el ${hoy}`, 40, afterTableY);
+
+            // Firma (texto) y línea
+            const firmaY = afterTableY + 50;
+            doc.setDrawColor(0);
+            doc.setLineWidth(0.5);
+            doc.line(40, firmaY, 250, firmaY);
+            doc.setFont("helvetica", "bold");
+            doc.text("Capacitación Collahuasi", 40, firmaY + 16);
+
+            // Sello (marca de agua)
+            if (logoData) {
+                try {
+                    // Intento usar baja opacidad (setGState). Si falla, la imagen se dibuja normalmente.
+                    if (doc.context && typeof doc.context.pdfLib === "undefined") {
+                        // algunos entornos no permiten setGState; intentar sin opacidad
+                        doc.addImage(logoData, "PNG", (doc.internal.pageSize.getWidth()/2) - 130, 260, 260, 100, undefined, "FAST");
+                    } else {
+                        // si setGState está disponible (nuevas versiones)
+                        if (doc.setGState) {
+                            const gState = { opacity: 0.12 };
+                            try {
+                                doc.setGState(new doc.GState(gState));
+                                doc.addImage(logoData, "PNG", (doc.internal.pageSize.getWidth()/2) - 130, 260, 260, 100);
+                                doc.setGState(new doc.GState({ opacity: 1 }));
+                            } catch (e) {
+                                // fallback sin opacidad
+                                doc.addImage(logoData, "PNG", (doc.internal.pageSize.getWidth()/2) - 130, 260, 260, 100);
+                            }
+                        } else {
+                            // fallback normal
+                            doc.addImage(logoData, "PNG", (doc.internal.pageSize.getWidth()/2) - 130, 260, 260, 100);
+                        }
+                    }
+                } catch (err) {
+                    // si algo falla, dibujamos sin opacidad
+                    doc.addImage(logoData, "PNG", (doc.internal.pageSize.getWidth()/2) - 130, 260, 260, 100);
+                }
+            }
+
+            // Guardar PDF
+            const safeName = trabajador.replace(/[^a-z0-9_\-]/gi, '_');
+            doc.save(`Certificado_${safeName}.pdf`);
+        }
+
+        // Inicializa UI
         updateUI();
     </script>
 </body>
