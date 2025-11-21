@@ -573,109 +573,127 @@
             modal.show();
         }
 
-        /* -------------------------
-           PDF PROFESIONAL COLLAHUASI
-        ------------------------- */
+      /* -------------------------
+   PDF PROFESIONAL COLLAHUASI
+------------------------- */
 
-        async function generarPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF("p", "pt", "letter");
+async function generarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF("p", "pt", "letter");
 
-            // Logo corporativo desde tu repositorio
-            const logoUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/LOGO2.0.png";
-            const logo = await loadImage(logoUrl);
+    // Logo corporativo desde tu repositorio
+    const logoUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/LOGO2.0.png";
+    const logo = await loadImage(logoUrl);
 
-            /* === ENCABEZADO === */
-            doc.setFillColor(39, 83, 23);
-            doc.rect(0, 0, 612, 80, "F");
+    /* === ENCABEZADO === */
+    doc.setFillColor(39, 83, 23);
+    doc.rect(0, 0, 612, 80, "F");
 
-            doc.addImage(logo, "PNG", 30, 15, 140, 50);
+    doc.addImage(logo, "PNG", 30, 15, 140, 50);
 
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(18);
-            doc.setTextColor(255, 255, 255);
-            doc.text("Historial de Certificaciones CMDIC", 200, 50);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(255, 255, 255);
+    doc.text("Certificado de Competencias y Capacitación", 200, 50);
 
-            /* === DATOS DEL TRABAJADOR DESDE LA TARJETA === */
-                let trabajador = "";
-                let superintendencia = "";
-                let gerencia = "";
-                let posicion = "";
+    /* === DATOS DEL TRABAJADOR DESDE LA TARJETA === */
+    const trabajadorCard = document.querySelector(".cert-card");
+    const paragraphs = trabajadorCard.querySelectorAll("p");
+    
+    // Extraer datos correctamente de cada párrafo
+    let trabajadorNombre = "";
+    let superintendencia = "";
+    let gerencia = "";
+    let posicion = "";
+
+    paragraphs.forEach(p => {
+        const text = p.innerText;
+        if (text.includes("Nombre:")) {
+            trabajadorNombre = text.replace("Nombre:", "").trim();
+        } else if (text.includes("Superintendencia:")) {
+            superintendencia = text.replace("Superintendencia:", "").trim();
+        } else if (text.includes("Gerencia:")) {
+            gerencia = text.replace("Gerencia:", "").trim();
+        } else if (text.includes("Posición:")) {
+            posicion = text.replace("Posición:", "").trim();
+        }
+    });
 
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
     doc.text(`TRABAJADOR: ${trabajadorNombre}`, 40, 110);
-    doc.text(`VP: ${superintendencia}`, 40, 130);
+    doc.text(`SUPERINTENDENCIA: ${superintendencia}`, 40, 130);
     doc.text(`GERENCIA: ${gerencia}`, 40, 150);
     doc.text(`POSICIÓN: ${posicion}`, 40, 170);
 
-            /* === EXTRAER CERTIFICACIONES DESDE EL DOM === */
-            const certs = [];
-            document.querySelectorAll(".cert-card").forEach(card => {
-                const title = card.querySelector("h6");
-                if (!title) return; // Ignorar tarjeta de trabajador
+    /* === EXTRAER CERTIFICACIONES DESDE EL DOM === */
+    const certs = [];
+    document.querySelectorAll(".cert-card").forEach(card => {
+        const title = card.querySelector("h6");
+        if (!title) return; // Ignorar tarjeta de trabajador
 
-                const nombre = title.textContent.trim();
-                const inicio = card.querySelector("p:nth-child(1)").innerText.replace("Inicio:", "").trim();
-                const venc = card.querySelector("p:nth-child(2)").innerText.replace("Vencimiento:", "").trim();
-                const otec = card.querySelector("p:nth-child(3)").innerText.replace("OTEC:", "").trim();
-                const estado = card.querySelector(".badge").innerText.trim();
+        const nombre = title.textContent.trim();
+        const inicio = card.querySelector("p:nth-child(1)").innerText.replace("Inicio:", "").trim();
+        const venc = card.querySelector("p:nth-child(2)").innerText.replace("Vencimiento:", "").trim();
+        const otec = card.querySelector("p:nth-child(3)").innerText.replace("OTEC:", "").trim();
+        const estado = card.querySelector(".badge").innerText.trim();
 
-                certs.push([nombre, inicio, venc, otec, estado]);
-            });
+        certs.push([nombre, inicio, venc, otec, estado]);
+    });
 
-            /* === TABLA === */
-            doc.autoTable({
-                startY: 190,
-                head: [["Certificación", "Inicio", "Vencimiento", "OTEC", "Estado"]],
-                body: certs,
-                styles: { fontSize: 10 },
-                headStyles: { fillColor: [39, 83, 23], textColor: [255, 255, 255] },
-                alternateRowStyles: { fillColor: [240, 240, 240] },
-                margin: { left: 40, right: 40 }
-            });
+    /* === TABLA === */
+    doc.autoTable({
+        startY: 190,
+        head: [["Certificación", "Inicio", "Vencimiento", "OTEC", "Estado"]],
+        body: certs,
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [39, 83, 23], textColor: [255, 255, 255] },
+        alternateRowStyles: { fillColor: [240, 240, 240] },
+        margin: { left: 40, right: 40 }
+    });
 
-            /* === SELLO CORPORATIVO === */
-            try {
-                doc.setGState(new doc.GState({ opacity: 0.15 }));
-            } catch(e) {}
+    /* === SELLO CORPORATIVO === */
+    try {
+        doc.setGState(new doc.GState({ opacity: 0.15 }));
+    } catch(e) {}
 
-            doc.addImage(logo, "PNG", 180, 330, 250, 100);
+    doc.addImage(logo, "PNG", 180, 330, 250, 100);
 
-            try {
-                doc.setGState(new doc.GState({ opacity: 1 }));
-            } catch(e) {}
+    try {
+        doc.setGState(new doc.GState({ opacity: 1 }));
+    } catch(e) {}
 
-            /* === FIRMA === */
-            const finalY = doc.lastAutoTable.finalY + 60;
-            doc.line(40, finalY, 260, finalY);
+    /* === FIRMA === */
+    const finalY = doc.lastAutoTable.finalY + 60;
+    doc.line(40, finalY, 260, finalY);
 
-            doc.setFont("helvetica", "bold");
-            doc.text("Capacitación Collahuasi", 40, finalY + 20);
+    doc.setFont("helvetica", "bold");
+    doc.text("Capacitación Collahuasi", 40, finalY + 20);
 
-            /* === FECHA === */
-            const fecha = new Date().toLocaleDateString("es-CL");
-            doc.text(`Emitido el ${fecha}`, 40, finalY + 50);
+    /* === FECHA === */
+    const fecha = new Date().toLocaleDateString("es-CL");
+    doc.text(`Emitido el ${fecha}`, 40, finalY + 50);
 
-            /* === DESCARGA === */
-            const safeName = trabajadorNombre.replace(/[^a-z0-9_\-]/gi, "_");
-            doc.save(`Certificado_${safeName}.pdf`);
-        }
+    /* === DESCARGA === */
+    const safeName = trabajadorNombre.replace(/[^a-z0-9_\-]/gi, "_");
+    doc.save(`Certificado_${safeName}.pdf`);
+}
 
-        /* === CARGAR IMAGEN DESDE URL === */
-        function loadImage(url) {
-            return new Promise(resolve => {
-                const img = new Image();
-                img.crossOrigin = "Anonymous";
-                img.onload = () => resolve(img);
-                img.src = url;
-            });
-        }
+/* === CARGAR IMAGEN DESDE URL === */
+function loadImage(url) {
+    return new Promise(resolve => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = () => resolve(img);
+        img.src = url;
+    });
+}
 
         // Inicializa UI
         updateUI();
     </script>
 </body>
 </html>
+
 
 
