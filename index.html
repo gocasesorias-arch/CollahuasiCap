@@ -597,18 +597,17 @@
             doc.text("Historial de Certificaciones CMDIC", 200, 50);
 
             /* === DATOS DEL TRABAJADOR DESDE LA TARJETA === */
-            const trabajadorCard = document.querySelector(".cert-card");
-            const trabajadorNombre = trabajadorCard.querySelectorAll("p")[0].innerText.replace("Nombre:", "").trim();
-            const vp = trabajadorCard.querySelectorAll("p")[1].innerText.replace("VP:", "").trim();
-            const gerencia = trabajadorCard.querySelectorAll("p")[2].innerText.replace("Gerencia:", "").trim();
-            const posicion = trabajadorCard.querySelectorAll("p")[3].innerText.replace("Posición:", "").trim();
+                let trabajador = "";
+                let superintendencia = "";
+                let gerencia = "";
+                let posicion = "";
 
-            doc.setFontSize(12);
-            doc.setTextColor(0, 0, 0);
-            doc.text(`TRABAJADOR: ${trabajadorNombre}`, 40, 110);
-            doc.text(`VP: ${vp}`, 40, 130);
-            doc.text(`GERENCIA: ${gerencia}`, 40, 150);
-            doc.text(`POSICIÓN: ${posicion}`, 40, 170);
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`TRABAJADOR: ${trabajadorNombre}`, 40, 110);
+    doc.text(`VP: ${superintendencia}`, 40, 130);
+    doc.text(`GERENCIA: ${gerencia}`, 40, 150);
+    doc.text(`POSICIÓN: ${posicion}`, 40, 170);
 
             /* === EXTRAER CERTIFICACIONES DESDE EL DOM === */
             const certs = [];
@@ -678,4 +677,5 @@
     </script>
 </body>
 </html>
+
 
