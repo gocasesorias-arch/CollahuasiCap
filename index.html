@@ -238,6 +238,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
+
     <script>
         // URL del archivo JSON en GitHub
         const jsonUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/tableConvert.com_jt1fa1.json";
@@ -731,9 +732,97 @@
 
         // Inicializa UI
         updateUI();
+        // =============================
+//   Generador de PDF Profesional
+// =============================
+
+async function generarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF("p", "pt", "letter");
+
+    // LOGO desde tu repositorio
+    const logoUrl = "https://raw.githubusercontent.com/gocasesorias-arch/CollahuasiCap/main/LOGO2.0.png";
+    const logo = await loadImage(logoUrl);
+
+    // Encabezado
+    doc.setFillColor(39, 83, 23);
+    doc.rect(0, 0, 612, 80, "F");
+    doc.addImage(logo, "PNG", 30, 15, 140, 50);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(255, 255, 255);
+    doc.text("Certificado de Competencias y Capacitación", 200, 50);
+
+    // Obtener datos trabajador
+    const trabajadorCard = document.querySelector(".cert-card");
+    const trabajadorNombre = trabajadorCard.querySelectorAll("p")[0].innerText.replace("Nombre:", "").trim();
+    const trabajadorPosicion = trabajadorCard.querySelectorAll("p")[1].innerText.replace("Posición:", "").trim();
+
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Trabajador: ${trabajadorNombre}`, 40, 110);
+    doc.text(`Posición: ${trabajadorPosicion}`, 40, 130);
+
+    // Extraer certificaciones
+    const certs = [];
+    document.querySelectorAll(".cert-card").forEach(card => {
+        const titleElement = card.querySelector("h6");
+        if (!titleElement) return;
+
+        const nombre = titleElement.textContent.trim();
+        const datos = card.querySelectorAll("p");
+        const inicio = datos[0].textContent.replace("Inicio:", "").trim();
+        const venc = datos[1].textContent.replace("Vencimiento:", "").trim();
+        const otec = datos[2].textContent.replace("OTEC:", "").trim();
+        const estado = card.querySelector(".badge").textContent.trim();
+
+        certs.push([nombre, inicio, venc, otec, estado]);
+    });
+
+    // Tabla
+    doc.autoTable({
+        startY: 160,
+        head: [["Certificación", "Inicio", "Vencimiento", "OTEC", "Estado"]],
+        body: certs,
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [39, 83, 23], textColor: [255, 255, 255] },
+        alternateRowStyles: { fillColor: [240, 240, 240] }
+    });
+
+    // Sello
+    doc.setGState(new doc.GState({ opacity: 0.15 }));
+    doc.addImage(logo, "PNG", 180, 350, 250, 100);
+    doc.setGState(new doc.GState({ opacity: 1 }));
+
+    // Firma
+    const finalY = doc.lastAutoTable.finalY + 60;
+    doc.line(40, finalY, 260, finalY);
+    doc.setFont("helvetica", "bold");
+    doc.text("Capacitación Collahuasi", 40, finalY + 20);
+
+    // Fecha
+    const fecha = new Date().toLocaleDateString("es-CL");
+    doc.text(`Emitido el ${fecha}`, 40, finalY + 50);
+
+    // Descargar
+    doc.save(`Certificado_${trabajadorNombre}.pdf`);
+}
+
+// Cargar imágenes
+function loadImage(url) {
+    return new Promise(resolve => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = () => resolve(img);
+        img.src = url;
+    });
+}
+
     </script>
 </body>
 </html>
+
 
 
 
