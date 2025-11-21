@@ -594,7 +594,7 @@ async function generarPDF() {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.setTextColor(255, 255, 255);
-    doc.text("Certificado de Competencias y Capacitación", 200, 50);
+    doc.text("Historial de Certificaciones", 200, 50);
 
     /* === DATOS DEL TRABAJADOR DESDE LA TARJETA === */
     const trabajadorCard = document.querySelector(".cert-card");
@@ -622,7 +622,7 @@ async function generarPDF() {
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
     doc.text(`TRABAJADOR: ${trabajadorNombre}`, 40, 110);
-    doc.text(`SUPERINTENDENCIA: ${superintendencia}`, 40, 130);
+    doc.text(`VP: ${superintendencia}`, 40, 130);
     doc.text(`GERENCIA: ${gerencia}`, 40, 150);
     doc.text(`POSICIÓN: ${posicion}`, 40, 170);
 
@@ -694,6 +694,7 @@ function loadImage(url) {
     </script>
 </body>
 </html>
+
 
 
 
